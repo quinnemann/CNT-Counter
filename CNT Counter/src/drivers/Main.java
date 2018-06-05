@@ -54,6 +54,8 @@ public class Main {
 		detector.process();
 		BufferedImage edges = detector.getEdgesImage();
 		
+		edges = new BufferedImage(edges.getWidth(), edges.getHeight(), edges.TYPE_BYTE_GRAY);
+		
 		try {
 			ImageIO.write(edges, "jpg", new File("images/" + file + "output3.jpg"));
 		} catch (IOException e) {

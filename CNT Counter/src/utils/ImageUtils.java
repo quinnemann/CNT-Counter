@@ -9,10 +9,10 @@ import java.util.Collections;
 
 import javax.imageio.ImageIO;
 
-import drivers.Main;
-
+//This class provides a variety of utility functions for CNT image manipulation
 public class ImageUtils {
 	
+	//Reads in an image from a file
 	public static BufferedImage readImage(String file) {
 		BufferedImage img = null;
 		try {
@@ -24,8 +24,9 @@ public class ImageUtils {
 		return img;
 	}
 	
-	//returns an image's width in micrometers
+	//returns an image's width in micrometers, assuming scale is 100nm
 	public static double actualSize(BufferedImage img) {
+		//height of the image scale
 		int scaleHeight = img.getHeight() - 54;
 		
 		int blkCount = 0;
@@ -44,6 +45,7 @@ public class ImageUtils {
 		return img.getWidth() / (double)whtCount / 10;
 	}
 	
+	//averages out vertical differences in image exposure
 	public static BufferedImage averageExposure(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight() - 64;
@@ -68,7 +70,7 @@ public class ImageUtils {
 		return img;
 	}
 	
-	//sets 
+	//increases the contrast in the image to maximum with no data loss
 	public static BufferedImage contrast(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight() - 64;
@@ -101,6 +103,7 @@ public class ImageUtils {
 		return img;
 	}
 	
+	//maximum contrast using an threshold of the average pixel per row
 	public static BufferedImage contrastByRow(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight();
@@ -144,6 +147,7 @@ public class ImageUtils {
 		return (int)GenUtils.average(pixels);
 	}
 	
+	//returns the average pixel value of a single row
 	public static int averageRowLight(BufferedImage img, int row) {
 		int width = img.getWidth();
 		
@@ -156,6 +160,7 @@ public class ImageUtils {
 		return (int)GenUtils.average(pixels);
 	}
 	
+	//returns the maximum pixel value of a single row
 	public static int maxRowLight(BufferedImage img, int row) {
 		int width = img.getWidth();
 		
@@ -168,6 +173,7 @@ public class ImageUtils {
 		return (int)GenUtils.max(pixels);
 	}
 	
+	//returns the minimum pixel value of a single row
 	public static int minRowLight(BufferedImage img, int row) {
 		int width = img.getWidth();
 		
@@ -180,6 +186,7 @@ public class ImageUtils {
 		return (int)GenUtils.min(pixels);
 	}
 	
+	//unused function that reduces noise by removing individual pixels
 	public static BufferedImage noiseReduction(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight();
@@ -198,6 +205,7 @@ public class ImageUtils {
 		return img;
 	}
 	
+	//tests if a white pixel is individual
 	public static boolean pixelIsWhtIsland(int x, int y, BufferedImage img) {
 		Color c = new Color(img.getRGB(x, y));
 		Color nColor = new Color(img.getRGB(x, y - 1));
@@ -216,6 +224,7 @@ public class ImageUtils {
 		return false;
 	}
 	
+	//tests if a white pixel is almost individual
 	public static boolean pixelIsWhtIslandStrong(int x, int y, BufferedImage img) {
 		Color c = new Color(img.getRGB(x, y));
 		Color nColor = new Color(img.getRGB(x, y - 1));
@@ -234,6 +243,7 @@ public class ImageUtils {
 		return false;
 	}
 	
+	//tests if black pixel is individual
 	public static boolean pixelIsBlkIsland(int x, int y, BufferedImage img) {
 		Color c = new Color(img.getRGB(x, y));
 		Color nColor = new Color(img.getRGB(x, y - 1));
@@ -252,6 +262,7 @@ public class ImageUtils {
 		return false;
 	}
 	
+	//tests if black pixel is almost individual
 	public static boolean pixelIsBlkIslandStrong(int x, int y, BufferedImage img) {
 		Color c = new Color(img.getRGB(x, y));
 		Color nColor = new Color(img.getRGB(x, y - 1));
@@ -270,6 +281,7 @@ public class ImageUtils {
 		return false;
 	}
 	
+	//prints the minimum, maximum, and average pixel value
 	public static void pixelInfo(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight() - 64;
@@ -291,6 +303,7 @@ public class ImageUtils {
 		System.out.println("Min: " + min + ", Max: " + max + ", Average: " + average);
 	}
 	
+	//more advanced noise reduction algorithm
 	public static BufferedImage medianFilter(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight() - 64;
@@ -314,6 +327,7 @@ public class ImageUtils {
 		return img;
 	}
 	
+	//gets the median of a pixel's neighbors
 	public static int medianOfPixels(BufferedImage img, int x, int y) {
 		ArrayList<Integer> pixels = new ArrayList<Integer>();
 		
@@ -340,6 +354,7 @@ public class ImageUtils {
 		return (pixels.get(3) + pixels.get(2)) / 2;
 	}
 	
+	//gets the average of a pixel's neighbors
 	public static int averageOfPixels(BufferedImage img, int x, int y) {
 		ArrayList<Integer> pixels = new ArrayList<Integer>();
 		
@@ -364,9 +379,24 @@ public class ImageUtils {
 		return (int)GenUtils.average(pixels);
 	}
 	
+	//enhances vertical lines in an image
 	public static BufferedImage vertLineEnhancer(BufferedImage img) {
 		
 		
+		
+		return img;
+	}
+	
+	public static BufferedImage green(BufferedImage img) {
+		int width = img.getWidth();
+		int height = img.getHeight();
+		Color green = new Color(0, 255, 0);
+		
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				img.setRGB(i, j, green.getRGB());
+			}
+		}
 		
 		return img;
 	}
