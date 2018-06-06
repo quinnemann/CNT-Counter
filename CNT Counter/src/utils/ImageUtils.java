@@ -2,6 +2,8 @@ package utils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,14 +14,22 @@ import javax.imageio.ImageIO;
 //This class provides a variety of utility functions for CNT image manipulation
 public class ImageUtils {
 	
+	//Creates a deep copy of an image
+	public static BufferedImage deepCopy(BufferedImage bi) {
+		 ColorModel cm = bi.getColorModel();
+		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		 WritableRaster raster = bi.copyData(null);
+		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+		}
+	
 	//Reads in an image from a file
 	public static BufferedImage readImage(String file) {
 		BufferedImage img = null;
 		try {
 			img = ImageIO.read(new File(file));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("File does not exist!");
+			System.exit(0);
 		}
 		return img;
 	}
@@ -47,15 +57,17 @@ public class ImageUtils {
 	
 	//averages out vertical differences in image exposure
 	public static BufferedImage averageExposure(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight() - 64;
-		int totalAverage = averageLight(img);
+		BufferedImage cpy = deepCopy(img);
+		
+		int width = cpy.getWidth();
+		int height = cpy.getHeight() - 64;
+		int totalAverage = averageLight(cpy);
 		
 		for (int j = 0; j < height; j++) {
-			int rowAverage = averageRowLight(img, j);
-			int diff = (totalAverage - rowAverage) / 2;
+			int rowAverage = averageRowLight(cpy, j);
+			int diff = totalAverage - rowAverage;
 			for (int i = 0; i < width; i++) {
-				Color prev = new Color(img.getRGB(i, j));
+				Color prev = new Color(cpy.getRGB(i, j));
 				int newColor = prev.getRed() + diff;
 				if (newColor > 255) {
 					newColor = 255;
@@ -63,23 +75,25 @@ public class ImageUtils {
 					newColor = 0;
 				}
 				Color newC = new Color(newColor, newColor, newColor);
-				img.setRGB(i, j, newC.getRGB());
+				cpy.setRGB(i, j, newC.getRGB());
 			}
 		}
 		
-		return img;
+		return cpy;
 	}
 	
 	//increases the contrast in the image to maximum with no data loss
 	public static BufferedImage contrast(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight() - 64;
+		BufferedImage cpy = deepCopy(img);
+		
+		int width = cpy.getWidth();
+		int height = cpy.getHeight() - 64;
 		
 		int pixels[] = new int[width * height];
 		int pixelCount = 0;
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				Color c = new Color(img.getRGB(i, j));
+				Color c = new Color(cpy.getRGB(i, j));
 				pixels[pixelCount] = c.getRed();
 				pixelCount++;
 			}
@@ -92,41 +106,43 @@ public class ImageUtils {
 		
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				Color c = new Color(img.getRGB(i, j));
+				Color c = new Color(cpy.getRGB(i, j));
 				int light = c.getRed();
 				int newLight = (int)Math.round((light - min) * multiplier);
 				Color newC = new Color(newLight, newLight, newLight);
-				img.setRGB(i, j, newC.getRGB());
+				cpy.setRGB(i, j, newC.getRGB());
 			}
 		}
 		
-		return img;
+		return cpy;
 	}
 	
 	//maximum contrast using an threshold of the average pixel per row
 	public static BufferedImage contrastByRow(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight();
+		BufferedImage cpy = deepCopy(img);
+		
+		int width = cpy.getWidth();
+		int height = cpy.getHeight();
 		Color blk = new Color(0, 0, 0);
 		Color wht = new Color(255, 255, 255);
 		
 		
 		for (int i = 0; i < height - 64; i++) {
-			int average = averageRowLight(img, i);
+			int average = averageRowLight(cpy, i);
 			
 			int threshold = average;
 			
 			for (int j = 0; j < width; j++) {
-				Color c = new Color(img.getRGB(j, i));
+				Color c = new Color(cpy.getRGB(j, i));
 				if (c.getRed() < threshold) {
-					img.setRGB(j, i, blk.getRGB());
+					cpy.setRGB(j, i, blk.getRGB());
 				} else {
-					img.setRGB(j, i, wht.getRGB());
+					cpy.setRGB(j, i, wht.getRGB());
 				}
 			}
 		}
 		
-		return img;
+		return cpy;
 	}
 	
 	//returns the average pixel value of the entire image
@@ -188,21 +204,23 @@ public class ImageUtils {
 	
 	//unused function that reduces noise by removing individual pixels
 	public static BufferedImage noiseReduction(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight();
+		BufferedImage cpy = deepCopy(img);
+		
+		int width = cpy.getWidth();
+		int height = cpy.getHeight();
 		Color blk = new Color(0, 0, 0);
 		Color wht = new Color(255, 255, 255);
 		
 		for (int i = 1; i < width - 1; i++) {
 			for (int j = 1; j < height - 65; j++) {
-				if (pixelIsWhtIsland(i, j, img))
-					img.setRGB(i, j, blk.getRGB());
-				if (pixelIsBlkIsland(i, j, img))
-					img.setRGB(i, j, wht.getRGB());
+				if (pixelIsWhtIsland(i, j, cpy))
+					cpy.setRGB(i, j, blk.getRGB());
+				if (pixelIsBlkIsland(i, j, cpy))
+					cpy.setRGB(i, j, wht.getRGB());
 			}
 		}
 		
-		return img;
+		return cpy;
 	}
 	
 	//tests if a white pixel is individual
@@ -305,26 +323,28 @@ public class ImageUtils {
 	
 	//more advanced noise reduction algorithm
 	public static BufferedImage medianFilter(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight() - 64;
+		BufferedImage cpy = deepCopy(img);
 		
-		int[][] pixels = new int[height - 2][width - 2];
+		int width = cpy.getWidth();
+		int height = cpy.getHeight() - 64;
+		
+		int[][] pixels = new int[height - 4][width - 2];
 		
 		for (int i = 1; i < width - 1; i++) {
-			for (int j = 1; j < height - 1; j++) {
-				pixels[j - 1][i - 1] = medianOfPixels(img, i, j);
+			for (int j = 2; j < height - 2; j++) {
+				pixels[j - 2][i - 1] = medianOfPixels(cpy, i, j);
 			}
 		}
 		
 		for (int i = 1; i < width - 1; i++) {
-			for (int j = 1; j < height - 1; j++) {
-				int newColor = pixels[j-1][i-1];
+			for (int j = 2; j < height - 2; j++) {
+				int newColor = pixels[j-2][i-1];
 				Color newC = new Color(newColor,newColor,newColor);
-				img.setRGB(i, j, newC.getRGB());
+				cpy.setRGB(i, j, newC.getRGB());
 			}
 		}
 		
-		return img;
+		return cpy;
 	}
 	
 	//gets the median of a pixel's neighbors
@@ -339,6 +359,12 @@ public class ImageUtils {
 		Color sw = new Color(img.getRGB(x-1, y+1));
 		Color w = new Color(img.getRGB(x-1, y));
 		Color nw = new Color(img.getRGB(x-1, y-1));
+		/*Color nnw = new Color(img.getRGB(x-1, y-2));
+		Color nn = new Color(img.getRGB(x, y-2));
+		Color nne = new Color(img.getRGB(x+1, y-2));
+		Color ssw = new Color(img.getRGB(x-1, y+2));
+		Color ss = new Color(img.getRGB(x, y+2));
+		Color sse = new Color(img.getRGB(x+1, y+2));*/
 		
 		pixels.add(n.getRed());
 		pixels.add(ne.getRed());
@@ -348,13 +374,19 @@ public class ImageUtils {
 		pixels.add(sw.getRed());
 		pixels.add(w.getRed());
 		pixels.add(nw.getRed());
+		/*pixels.add(nnw.getRed());
+		pixels.add(nn.getRed());
+		pixels.add(nne.getRed());
+		pixels.add(ssw.getRed());
+		pixels.add(ss.getRed());
+		pixels.add(sse.getRed());*/
 		
 		Collections.sort(pixels);
 		
 		return (pixels.get(3) + pixels.get(2)) / 2;
 	}
 	
-	//gets the average of a pixel's neighbors
+	//UNUSED, gets the average of a pixel's neighbors
 	public static int averageOfPixels(BufferedImage img, int x, int y) {
 		ArrayList<Integer> pixels = new ArrayList<Integer>();
 		
@@ -381,23 +413,11 @@ public class ImageUtils {
 	
 	//enhances vertical lines in an image
 	public static BufferedImage vertLineEnhancer(BufferedImage img) {
-		
+		BufferedImage cpy = deepCopy(img);
 		
 		
 		return img;
 	}
 	
-	public static BufferedImage green(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight();
-		Color green = new Color(0, 255, 0);
-		
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				img.setRGB(i, j, green.getRGB());
-			}
-		}
-		
-		return img;
-	}
+	
 }
