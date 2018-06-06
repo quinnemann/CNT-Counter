@@ -19,15 +19,12 @@ public class Tester {
 		String file = in.next();
 		BufferedImage img = ImageUtils.readImage("images/" + file + ".jpg");
 		
-		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight(), img.TYPE_INT_RGB);
-		Graphics2D g2d = cpy.createGraphics();
-		g2d.drawImage(img, 0, 0, null);
-		
-		g2d.setColor(Color.green);
-		g2d.fillRect(20, 20, 20, 20);
+		img = ImageUtils.averageExposure(img);
+		img = ImageUtils.contrast(img);
+		img = ImageUtils.contrastByRow(img);
 
 		try {
-			ImageIO.write(cpy, "jpg", new File("images/" + file + "_test.jpg"));
+			ImageIO.write(img, "jpg", new File("images/" + file + "_test.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

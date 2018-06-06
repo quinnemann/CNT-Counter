@@ -322,6 +322,7 @@ public class ImageUtils {
 	}
 	
 	//more advanced noise reduction algorithm
+	//TODO: revert stronger filter changes
 	public static BufferedImage medianFilter(BufferedImage img) {
 		BufferedImage cpy = deepCopy(img);
 		
