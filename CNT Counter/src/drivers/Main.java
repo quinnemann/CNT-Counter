@@ -32,8 +32,22 @@ public class Main {
 		img = ImageUtils.contrast(img);
 		img = ImageUtils.contrastByRow(img);
 		
+		try {
+			ImageIO.write(img, "jpg", new File("images/" + file + "enhance.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		for (int i = 0; i < strength; i++) {
 			img = ImageUtils.medianFilter(img);
+		}
+		
+		try {
+			ImageIO.write(img, "jpg", new File("images/" + file + "noise.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		/*CannyEdgeDetector detector = new CannyEdgeDetector();
@@ -54,7 +68,7 @@ public class Main {
 		img = TubeDetector.drawTubes(img);
 		
 		try {
-			ImageIO.write(img, "jpg", new File("images/" + file + "output.jpg"));
+			ImageIO.write(img, "jpg", new File("images/" + file + "lines.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
