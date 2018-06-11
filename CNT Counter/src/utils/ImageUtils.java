@@ -1,6 +1,7 @@
 package utils;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -28,8 +29,7 @@ public class ImageUtils {
 		try {
 			img = ImageIO.read(new File(file));
 		} catch (IOException e) {
-			System.out.println("File does not exist!");
-			System.exit(0);
+			e.printStackTrace();
 		}
 		return img;
 	}
@@ -44,13 +44,13 @@ public class ImageUtils {
 		do {
 			c = new Color(img.getRGB(blkCount, scaleHeight));
 			blkCount++;
-		} while (c.getRed() < 100);
+		} while (c.getRed() < 100 && blkCount < img.getWidth() - 1);
 		
 		int whtCount = 0;
 		do {
 			c = new Color(img.getRGB(blkCount + whtCount, scaleHeight));
 			whtCount++;
-		} while (c.getRed() > 100);
+		} while (c.getRed() > 100 && blkCount + whtCount < img.getWidth() - 1);
 		
 		return img.getWidth() / (double)whtCount / 10;
 	}
@@ -60,7 +60,7 @@ public class ImageUtils {
 		BufferedImage cpy = deepCopy(img);
 		
 		int width = cpy.getWidth();
-		int height = cpy.getHeight() - 64;
+		int height = cpy.getHeight();
 		int totalAverage = averageLight(cpy);
 		
 		for (int j = 0; j < height; j++) {
@@ -87,7 +87,7 @@ public class ImageUtils {
 		BufferedImage cpy = deepCopy(img);
 		
 		int width = cpy.getWidth();
-		int height = cpy.getHeight() - 64;
+		int height = cpy.getHeight();
 		
 		int pixels[] = new int[width * height];
 		int pixelCount = 0;
@@ -127,7 +127,7 @@ public class ImageUtils {
 		Color wht = new Color(255, 255, 255);
 		
 		
-		for (int i = 0; i < height - 64; i++) {
+		for (int i = 0; i < height; i++) {
 			int average = averageRowLight(cpy, i);
 			
 			int threshold = average;
@@ -203,7 +203,7 @@ public class ImageUtils {
 	}
 	
 	//unused function that reduces noise by removing individual pixels
-	public static BufferedImage noiseReduction(BufferedImage img) {
+	/*public static BufferedImage noiseReduction(BufferedImage img) {
 		BufferedImage cpy = deepCopy(img);
 		
 		int width = cpy.getWidth();
@@ -221,7 +221,7 @@ public class ImageUtils {
 		}
 		
 		return cpy;
-	}
+	}*/
 	
 	//tests if a white pixel is individual
 	public static boolean pixelIsWhtIsland(int x, int y, BufferedImage img) {
@@ -327,19 +327,19 @@ public class ImageUtils {
 		BufferedImage cpy = deepCopy(img);
 		
 		int width = cpy.getWidth();
-		int height = cpy.getHeight() - 64;
+		int height = cpy.getHeight();
 		
-		int[][] pixels = new int[height - 4][width - 2];
+		int[][] pixels = new int[height - 2][width - 2];
 		
 		for (int i = 1; i < width - 1; i++) {
-			for (int j = 2; j < height - 2; j++) {
-				pixels[j - 2][i - 1] = medianOfPixels(cpy, i, j);
+			for (int j = 1; j < height - 1; j++) {
+				pixels[j - 1][i - 1] = medianOfPixels(cpy, i, j);
 			}
 		}
 		
 		for (int i = 1; i < width - 1; i++) {
-			for (int j = 2; j < height - 2; j++) {
-				int newColor = pixels[j-2][i-1];
+			for (int j = 1; j < height - 1; j++) {
+				int newColor = pixels[j-1][i-1];
 				Color newC = new Color(newColor,newColor,newColor);
 				cpy.setRGB(i, j, newC.getRGB());
 			}
@@ -412,13 +412,10 @@ public class ImageUtils {
 		return (int)GenUtils.average(pixels);
 	}
 	
-	//enhances vertical lines in an image
-	public static BufferedImage vertLineEnhancer(BufferedImage img) {
-		BufferedImage cpy = deepCopy(img);
-		
-		
-		return img;
+	public static BufferedImage cutBottom(BufferedImage img) {
+		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight() - 64, img.TYPE_INT_RGB);
+		Graphics2D g2d = cpy.createGraphics();
+		g2d.drawImage(img, 0, 0, null);
+		return cpy;
 	}
-	
-	
 }

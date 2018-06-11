@@ -3,17 +3,17 @@ package utils;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 public class TubeDetector {
 	
 	public static int detectTubes(BufferedImage img) {
-		
-		
 		int width = img.getWidth();
-		int height = img.getHeight() - 64;
-		
-		
+		int height = img.getHeight();
 		
 		ArrayList<Integer> tubesPerRow = new ArrayList<Integer>();
 		for (int i = 2; i < height - 2; i++) {
@@ -23,7 +23,7 @@ public class TubeDetector {
 				Color current = new Color(img.getRGB(j, i));
 				int curr = current.getRed();
 				if (curr < 100) {
-					if (inTube > 4) {
+					if (inTube > 0) {
 						tubes++;
 					}
 					inTube = 0;
@@ -40,12 +40,11 @@ public class TubeDetector {
 	public static BufferedImage drawTubes(BufferedImage img) {
 		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight(), img.TYPE_INT_RGB);
 		Graphics2D g2d = cpy.createGraphics();
-		g2d.drawImage(img, 0, 0, null);
 		
 		int width = img.getWidth();
-		int height = img.getHeight() - 64;
+		int height = img.getHeight();
 		
-		g2d.setColor(Color.blue);
+		g2d.setColor(Color.white);
 		
 		ArrayList<Integer> tubesPerRow = new ArrayList<Integer>();
 		for (int i = 2; i < height - 2; i++) {
@@ -57,7 +56,7 @@ public class TubeDetector {
 				if (curr < 100) {
 					if (inTube > 4) {
 						tubes++;
-						g2d.fillRect(j - (inTube / 2) - 3, i, 6, 1);
+						g2d.fillRect(j - (inTube / 2) - 3, i, 3, 15);
 					}
 					inTube = 0;
 				} else {
@@ -70,4 +69,58 @@ public class TubeDetector {
 		return cpy;
 	}
 	
+	public static int density(File file, int strength) {
+		BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
+		
+		double size = ImageUtils.actualSize(img);
+		
+		//enhance image
+		img = ImageUtils.cutBottom(img);
+		img = ImageUtils.averageExposure(img);
+		img = ImageUtils.contrast(img);
+		img = ImageUtils.contrastByRow(img);
+		
+		//reduce noise
+		for (int i = 0; i < strength; i++) {
+			img = ImageUtils.medianFilter(img);
+		}
+		try {
+			ImageIO.write(img, "jpg", new File(file.getParent() + "//output1.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		img = TubeDetector.drawTubes(img);
+		try {
+			ImageIO.write(img, "jpg", new File(file.getParent() + "//output2.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		img = ImageUtils.medianFilter(img);
+		try {
+			ImageIO.write(img, "jpg", new File(file.getParent() + "//output3.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//edge detection
+		CannyEdgeDetector detector = new CannyEdgeDetector();
+		detector.setSourceImage(img);
+		detector.setLowThreshold(2f);
+		detector.setHighThreshold(5f);
+		detector.setGaussianKernelRadius(3f);
+		detector.process();
+		BufferedImage edges = detector.getEdgesImage();
+		try {
+			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output4.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return (int)Math.round(TubeDetector.detectTubes(edges) / 2 / size);
+    }
 }

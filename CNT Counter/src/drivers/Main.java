@@ -26,23 +26,15 @@ public class Main {
 		double size = ImageUtils.actualSize(img);
 		System.out.println(size + " micrometers");
 		
-		
-		
+		//enhance image
 		img = ImageUtils.averageExposure(img);
 		img = ImageUtils.contrast(img);
 		img = ImageUtils.contrastByRow(img);
 		
-		try {
-			ImageIO.write(img, "jpg", new File("images/" + file + "enhance.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		//reduce noise
 		for (int i = 0; i < strength; i++) {
 			img = ImageUtils.medianFilter(img);
 		}
-		
 		try {
 			ImageIO.write(img, "jpg", new File("images/" + file + "noise.jpg"));
 		} catch (IOException e) {
@@ -50,50 +42,35 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		/*CannyEdgeDetector detector = new CannyEdgeDetector();
-		detector.setSourceImage(img);
-		detector.setLowThreshold(75f);
-		detector.setGaussianKernelRadius(3f);
-		detector.process();
-		BufferedImage edges = detector.getEdgesImage();
-		
-		try {
-			ImageIO.write(edges, "jpg", new File("images/" + file + "output2.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		int tubes = TubeDetector.detectTubes(img);
 		img = TubeDetector.drawTubes(img);
-		
+		img = ImageUtils.medianFilter(img);
 		try {
-			ImageIO.write(img, "jpg", new File("images/" + file + "lines.jpg"));
+			ImageIO.write(img, "jpg", new File("images/" + file + "redraw.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		//edge detection
+		CannyEdgeDetector detector = new CannyEdgeDetector();
+		detector.setSourceImage(img);
+		detector.setLowThreshold(2f);
+		detector.setHighThreshold(5f);
+		detector.setGaussianKernelRadius(3f);
+		detector.process();
+		BufferedImage edges = detector.getEdgesImage();
+		try {
+			ImageIO.write(edges, "jpg", new File("images/" + file + "z.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		int tubes = TubeDetector.detectTubes(edges) / 2;
 		
 		System.out.println("Estimated tubes: " + tubes);
 		System.out.println("Estimated density: " + tubes / size);
 		System.out.println("Done!");
 		in.close();
-	}
-	
-	static int numPeaks(int[] arr) {
-		int count = 0;
-		
-		if (arr[0] > arr[1])
-			count++;
-		
-		for (int i = 1; i < arr.length - 1; i++) {
-			if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1])
-				count++;
-		}
-		
-		if (arr[arr.length - 1] > arr[arr.length - 2])
-			count++;
-		
-		return count;
 	}
 }

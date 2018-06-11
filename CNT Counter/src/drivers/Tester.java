@@ -19,9 +19,7 @@ public class Tester {
 		String file = in.next();
 		BufferedImage img = ImageUtils.readImage("images/" + file + ".jpg");
 		
-		img = ImageUtils.averageExposure(img);
-		img = ImageUtils.contrast(img);
-		img = ImageUtils.contrastByRow(img);
+		img = ImageUtils.cutBottom(img);
 
 		try {
 			ImageIO.write(img, "jpg", new File("images/" + file + "_test.jpg"));

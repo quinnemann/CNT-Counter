@@ -1,5 +1,6 @@
 package utils;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
@@ -114,7 +115,10 @@ public class CannyEdgeDetector {
 	 */
 	
 	public BufferedImage getEdgesImage() {
-		return edgesImage;
+		BufferedImage cpy = new BufferedImage(this.edgesImage.getWidth(), this.edgesImage.getHeight(), this.edgesImage.TYPE_INT_RGB);
+		Graphics2D g2d = cpy.createGraphics();
+		g2d.drawImage(this.edgesImage, 0, 0, null);
+		return cpy;
 	}
  
 	/**
