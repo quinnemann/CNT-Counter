@@ -52,16 +52,16 @@ public class UI{
         fileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
+				JFileChooser fc = new JFileChooser();
 				fc.setDialogTitle("Open Image");
-				fc.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
+				fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 				setFileChooserFont(fc.getComponents());
 				
 				fc.setAcceptAllFileFilterUsed(false);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.JPG, *.jpg, *.JPEG, *.jpeg", "JPG", "jpg", "JPEG", "jpeg");
 				fc.addChoosableFileFilter(filter);
 				
-				int returnValue = fc.showOpenDialog(null);
+				int returnValue = fc.showOpenDialog(frame);
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					file = fc.getSelectedFile();
