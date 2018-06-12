@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -12,18 +11,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -31,10 +25,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
 
-import utils.CannyEdgeDetector;
-import utils.ImageUtils;
 import utils.TubeDetector;
 
 public class UI{
@@ -52,7 +43,7 @@ public class UI{
         fileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser fc = new JFileChooser();
+				JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
 				fc.setDialogTitle("Open Image");
 				fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 				setFileChooserFont(fc.getComponents());
@@ -93,9 +84,8 @@ public class UI{
 					errorLabel.setForeground(Color.RED);
 					errorLabel.setText("<html><center>Strength must be a</center><center>nonnegative integer</center></html>");
 				} else {
-					errorLabel.setForeground(Color.BLACK);
-					errorLabel.setText("Working...");
 					int tubes = TubeDetector.density(file, strength);
+					errorLabel.setForeground(new Color(0, 153, 0));
 					errorLabel.setText("Density: " + tubes);
 				}
 			}
@@ -162,18 +152,15 @@ public class UI{
     	try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	new UI();

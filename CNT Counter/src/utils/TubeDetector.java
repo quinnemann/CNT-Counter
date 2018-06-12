@@ -15,6 +15,9 @@ public class TubeDetector {
 		int width = img.getWidth();
 		int height = img.getHeight();
 		
+		Graphics2D g2d = img.createGraphics();
+		g2d.setColor(Color.blue);
+		
 		ArrayList<Integer> tubesPerRow = new ArrayList<Integer>();
 		for (int i = 2; i < height - 2; i++) {
 			int tubes = 0;
@@ -23,8 +26,11 @@ public class TubeDetector {
 				Color current = new Color(img.getRGB(j, i));
 				int curr = current.getRed();
 				if (curr < 100) {
-					if (inTube > 0) {
+					if (inTube > 2) {
 						tubes++;
+						if (tubesPerRow.size() == 800) {
+							g2d.fillRect(j - (inTube / 2), 0, 8, height);
+						}
 					}
 					inTube = 0;
 				} else {
@@ -33,6 +39,7 @@ public class TubeDetector {
 			}
 			tubesPerRow.add(tubes);
 		}
+		g2d.fillRect(0, 800, width, 5);
 		
 		return tubesPerRow.get(tubesPerRow.size() / 2);
 	}
@@ -56,7 +63,7 @@ public class TubeDetector {
 				if (curr < 100) {
 					if (inTube > 4) {
 						tubes++;
-						g2d.fillRect(j - (inTube / 2) - 3, i, 3, 15);
+						g2d.fillRect(j - (inTube / 2) - 1, i - 7, 3, 15);
 					}
 					inTube = 0;
 				} else {
@@ -91,23 +98,16 @@ public class TubeDetector {
 			e.printStackTrace();
 		}
 		
-		img = TubeDetector.drawTubes(img);
+		/*img = TubeDetector.drawTubes(img);
 		try {
 			ImageIO.write(img, "jpg", new File(file.getParent() + "//output2.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		img = ImageUtils.medianFilter(img);
-		try {
-			ImageIO.write(img, "jpg", new File(file.getParent() + "//output3.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		}*/
 		
 		//edge detection
-		CannyEdgeDetector detector = new CannyEdgeDetector();
+		/*CannyEdgeDetector detector = new CannyEdgeDetector();
 		detector.setSourceImage(img);
 		detector.setLowThreshold(2f);
 		detector.setHighThreshold(5f);
@@ -119,8 +119,15 @@ public class TubeDetector {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}*/
+		int tubes = TubeDetector.detectTubes(img);
+		try {
+			ImageIO.write(img, "jpg", new File(file.getParent() + "//output3.jpg"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		return (int)Math.round(TubeDetector.detectTubes(edges) / 2 / size);
+		return (int)Math.round(tubes / size);
     }
 }
