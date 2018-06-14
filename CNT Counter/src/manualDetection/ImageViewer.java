@@ -66,7 +66,7 @@ public class ImageViewer {
 		img = ImageUtils.averageExposure(img);
 		img = ImageUtils.contrast(img);
 		//img = ImageUtils.contrastByRow(img);
-		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(1.5 * img.getWidth()), (int)(1.5 * img.getHeight()),
+		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(.75 * img.getWidth()), (int)(.75 * img.getHeight()),
 				BufferedImage.SCALE_SMOOTH));
 		imageStack.push(img);
 		display = img;
