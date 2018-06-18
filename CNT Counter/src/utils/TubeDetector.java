@@ -26,10 +26,10 @@ public class TubeDetector {
 				Color current = new Color(img.getRGB(j, i));
 				int curr = current.getRed();
 				if (curr < 100) {
-					if (inTube > 2) {
+					if (inTube > 0) {
 						tubes++;
 						if (tubesPerRow.size() == 800) {
-							g2d.fillRect(j - (inTube / 2), 0, 8, height);
+							g2d.fillRect(j - (inTube / 2), 0, 4, height);
 						}
 					}
 					inTube = 0;
@@ -76,7 +76,7 @@ public class TubeDetector {
 		return cpy;
 	}
 	
-	public static int density(File file, int strength) {
+	public static double density(File file, int strength) {
 		BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
 		
 		double size = ImageUtils.actualSize(img);
@@ -91,12 +91,12 @@ public class TubeDetector {
 		for (int i = 0; i < strength; i++) {
 			img = ImageUtils.medianFilter(img);
 		}
-		try {
+		/*try {
 			ImageIO.write(img, "jpg", new File(file.getParent() + "//output1.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 		/*img = TubeDetector.drawTubes(img);
 		try {
@@ -107,27 +107,28 @@ public class TubeDetector {
 		}*/
 		
 		//edge detection
-		/*CannyEdgeDetector detector = new CannyEdgeDetector();
+		CannyEdgeDetector detector = new CannyEdgeDetector();
 		detector.setSourceImage(img);
 		detector.setLowThreshold(2f);
 		detector.setHighThreshold(5f);
 		detector.setGaussianKernelRadius(3f);
 		detector.process();
 		BufferedImage edges = detector.getEdgesImage();
-		try {
-			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output4.jpg"));
+		/*try {
+			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output2.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-		int tubes = TubeDetector.detectTubes(img);
-		try {
-			ImageIO.write(img, "jpg", new File(file.getParent() + "//output3.jpg"));
+		int tubes = TubeDetector.detectTubes(edges);
+		
+		/*try {
+			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output3.jpg"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
-		return (int)Math.round(tubes / size);
+		return tubes / size;
     }
 }

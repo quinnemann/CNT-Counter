@@ -25,19 +25,20 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import drivers.UI;
+import utils.GenUtils;
 import utils.TubeDetector;
 
 public class Results {
 	 public Results(int tubes, double size){
-		 	double density = tubes / size;
+		 	double density = GenUtils.roundThousandths(tubes / size);
 		 
 	    	JFrame frame = new JFrame();
 	    	
 	        JLabel infoLabel = new JLabel("<html><center>" + tubes + " Tubes</center>"
-	        		+ "<center>Image Size: " + size + " micrometers</center></html>");
+	        		+ "<center>Image Size: " + GenUtils.roundThousandths(size) + " &micro;m</center></html>");
 	        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        
-	        JLabel densityLabel = new JLabel("Density: " + density);
+	        JLabel densityLabel = new JLabel("<html>Density: " + density + " &micro;m<sup>-1</sup></html>");
 	        densityLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        
 	        JButton restart = new JButton("New Image");

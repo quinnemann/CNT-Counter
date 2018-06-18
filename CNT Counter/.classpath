@@ -2,5 +2,11 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="plugins/common-image-3.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins/common-io-3.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins/common-lang-3.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins/imageio-core-3.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins/imageio-metadata-3.3.2.jar"/>
+	<classpathentry kind="lib" path="plugins/imageio-tiff-3.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

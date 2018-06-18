@@ -26,6 +26,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import utils.GenUtils;
 import utils.TubeDetector;
 
 public class UI{
@@ -49,14 +50,14 @@ public class UI{
 				setFileChooserFont(fc.getComponents());
 				
 				fc.setAcceptAllFileFilterUsed(false);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.JPG, *.jpg, *.JPEG, *.jpeg", "JPG", "jpg", "JPEG", "jpeg");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.jpg, *.tif", "jpg", "tif");
 				fc.addChoosableFileFilter(filter);
 				
 				int returnValue = fc.showOpenDialog(frame);
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					file = fc.getSelectedFile();
-					fileLabel.setText(file.getName());
+					fileLabel.setText("<html><p><center>" + file.getName() + "</center></p></html>");
 				}
 			}
 		});
@@ -84,9 +85,9 @@ public class UI{
 					errorLabel.setForeground(Color.RED);
 					errorLabel.setText("<html><center>Strength must be a</center><center>nonnegative integer</center></html>");
 				} else {
-					int tubes = TubeDetector.density(file, strength);
+					double density = TubeDetector.density(file, strength);
 					errorLabel.setForeground(new Color(0, 153, 0));
-					errorLabel.setText("Density: " + tubes);
+					errorLabel.setText("<html>Density: " + GenUtils.roundThousandths(density) + " &micro;m<sup>-1</sup></html>");
 				}
 			}
 		});
@@ -140,7 +141,7 @@ public class UI{
         int height = (int)screenSize.getHeight();
         frame.setSize(width / 4, height / 3);
         
-        ImageIcon icon = new ImageIcon("images/icon.png");
+        ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/icons/icon.png"));
         frame.setIconImage(icon.getImage());
         
         frame.setLocationRelativeTo(null);
@@ -151,13 +152,7 @@ public class UI{
     public static void main(String[] args) {
     	try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	

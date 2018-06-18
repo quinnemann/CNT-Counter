@@ -66,8 +66,13 @@ public class ImageViewer {
 		img = ImageUtils.averageExposure(img);
 		img = ImageUtils.contrast(img);
 		//img = ImageUtils.contrastByRow(img);
-		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(.75 * img.getWidth()), (int)(.75 * img.getHeight()),
+		
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		scale = (screenSize.getHeight() / img.getHeight()) - .5;
+		
+		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(scale * img.getWidth()), (int)(scale * img.getHeight()),
 				BufferedImage.SCALE_SMOOTH));
+		
 		imageStack.push(img);
 		display = img;
 		ratio = (double)img.getWidth() / img.getHeight();
@@ -212,7 +217,6 @@ public class ImageViewer {
         
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setSize(display.getWidth(), display.getHeight() + 200);
         
         ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/icons/icon.png"));

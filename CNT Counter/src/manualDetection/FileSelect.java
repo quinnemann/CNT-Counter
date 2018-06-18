@@ -47,14 +47,14 @@ public class FileSelect {
 				setFileChooserFont(fc.getComponents());
 				
 				fc.setAcceptAllFileFilterUsed(false);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.JPG, *.jpg, *.JPEG, *.jpeg", "JPG", "jpg", "JPEG", "jpeg");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.jpg, *.tif", "jpg", "tif");
 				fc.addChoosableFileFilter(filter);
 				
 				int returnValue = fc.showOpenDialog(frame);
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					file = fc.getSelectedFile();
-					fileLabel.setText(file.getName());
+					fileLabel.setText("<html><center><p>" + file.getName() + "</p></center></html>");
 					errorLabel.setText("");
 				}
 			}
@@ -137,13 +137,7 @@ public class FileSelect {
     public static void main(String[] args) {
     	try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	
