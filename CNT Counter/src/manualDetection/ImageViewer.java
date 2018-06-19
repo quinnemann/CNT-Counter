@@ -42,7 +42,7 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import dataStructures.ImageStack;
-
+import utils.AFMUtils;
 import utils.ImageUtils;
 
 public class ImageViewer {
@@ -55,17 +55,24 @@ public class ImageViewer {
 	private double ratio;
 	private double scale;
 	
-	public ImageViewer(String file) {
+	public ImageViewer(String file, boolean isAfm) {
 		JFrame frame = new JFrame();
 		
 		imageStack = new ImageStack();
 		
 		BufferedImage img = ImageUtils.readImage(file);
-		actualSize = ImageUtils.actualSize(img);
-		img = ImageUtils.cutBottom(img);
-		img = ImageUtils.averageExposure(img);
-		img = ImageUtils.contrast(img);
-		//img = ImageUtils.contrastByRow(img);
+		
+		if (isAfm) {
+			actualSize = AFMUtils.actualSize(img, 100);
+			img = AFMUtils.crop(img);
+			img = img.getSubimage(0, 0, img.getWidth(), img.getHeight());
+		} else {
+			actualSize = ImageUtils.actualSize(img);
+			img = ImageUtils.cutBottom(img);
+			img = ImageUtils.averageExposure(img);
+			img = ImageUtils.contrast(img);
+			//img = ImageUtils.contrastByRow(img);
+		}
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		scale = (screenSize.getHeight() / img.getHeight()) - .5;
@@ -138,11 +145,19 @@ public class ImageViewer {
 				Graphics2D g2d = cpy.createGraphics();
 				
 				if (imageStack.size() == 1) {
-					g2d.setColor(Color.ORANGE);
+					if (isAfm) {
+						g2d.setColor(Color.BLUE);
+					} else {
+						g2d.setColor(Color.ORANGE);
+					}
 					vertPos = (int)position.getY();
 					g2d.fillRect(0, vertPos - 3, cpy.getWidth(), 6);
 				} else {
-					g2d.setColor(Color.RED);
+					if (isAfm) {
+						g2d.setColor(Color.GREEN);
+					} else {
+						g2d.setColor(Color.RED);
+					}
 					g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
 				}
 				imageStack.push(cpy);
@@ -167,12 +182,20 @@ public class ImageViewer {
 				Graphics2D g2d = display.createGraphics();
 				if (imageStack.size() == 1) {
 					try {
-						g2d.setColor(Color.ORANGE);
+						if (isAfm) {
+							g2d.setColor(Color.BLUE);
+						} else {
+							g2d.setColor(Color.ORANGE);
+						}
 						g2d.fillRect(0, (int)position.getY() - 3, display.getWidth(), 6);
 					} catch (Exception e) {}
 				} else {
 					try {
-						g2d.setColor(Color.RED);
+						if (isAfm) {
+							g2d.setColor(Color.GREEN);
+						} else {
+							g2d.setColor(Color.RED);
+						}
 						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
 					} catch (Exception e) {};
 				}
@@ -243,7 +266,7 @@ public class ImageViewer {
     	
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	new ImageViewer(args[0]);
+            	new ImageViewer(args[0], args[1].equals("true"));
             }
         });
     }

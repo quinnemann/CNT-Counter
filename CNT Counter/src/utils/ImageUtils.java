@@ -18,10 +18,10 @@ public class ImageUtils {
 	
 	//Creates a deep copy of an image
 	public static BufferedImage deepCopy(BufferedImage bi) {
-		 ColorModel cm = bi.getColorModel();
-		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		 WritableRaster raster = bi.copyData(null);
-		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+		 BufferedImage cpy = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+		 Graphics2D g2d = cpy.createGraphics();
+		 g2d.drawImage(bi, 0, 0, null);
+		 return cpy;
 		}
 	
 	//Reads in an image from a file
@@ -66,7 +66,7 @@ public class ImageUtils {
 		
 		for (int j = 0; j < height; j++) {
 			int rowAverage = averageRowLight(cpy, j);
-			int diff = totalAverage - rowAverage;
+			int diff = totalAverage - rowAverage / 2;
 			for (int i = 0; i < width; i++) {
 				Color prev = new Color(cpy.getRGB(i, j));
 				int newColor = prev.getRed() + diff;

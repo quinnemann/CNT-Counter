@@ -28,7 +28,7 @@ public class TubeDetector {
 				if (curr < 100) {
 					if (inTube > 0) {
 						tubes++;
-						if (tubesPerRow.size() == 800) {
+						if (tubesPerRow.size() == 600) {
 							g2d.fillRect(j - (inTube / 2), 0, 4, height);
 						}
 					}
@@ -39,9 +39,9 @@ public class TubeDetector {
 			}
 			tubesPerRow.add(tubes);
 		}
-		g2d.fillRect(0, 800, width, 5);
+		g2d.fillRect(0, 600, width, 5);
 		
-		return tubesPerRow.get(tubesPerRow.size() / 2);
+		return tubesPerRow.get((int) (tubesPerRow.size() * .75));
 	}
 	
 	public static BufferedImage drawTubes(BufferedImage img) {

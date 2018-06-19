@@ -1,4 +1,4 @@
-package manualDetection;
+package drivers;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -11,11 +11,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,19 +25,21 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import utils.AFMUtils;
+import utils.GenUtils;
+import utils.ImageUtils;
 import utils.TubeDetector;
 
-public class FileSelect {
+public class AFMUI {
 	private File file = null;
 	private JLabel fileLabel = new JLabel("No File Selected");
-	public static Font defaultFont = new Font("Arial", Font.PLAIN, 0);
+	private Font defaultFont = new Font("Arial", Font.PLAIN, 0);
 	private JLabel errorLabel = new JLabel("");
 
-    public FileSelect(){
+    public AFMUI(){
     	JFrame frame = new JFrame();
     	
         JButton fileButton = new JButton("Select File");
@@ -55,38 +59,56 @@ public class FileSelect {
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					file = fc.getSelectedFile();
-					fileLabel.setText("<html><center><p>" + file.getName() + "</p></center></html>");
-					errorLabel.setText("");
+					fileLabel.setText("<html><p><center>" + file.getName() + "</center></p></html>");
 				}
 			}
 		});
-        fileButton.setFocusable(false);
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JCheckBox isAfm = new JCheckBox("AFM Image");
-        isAfm.setHorizontalAlignment(SwingConstants.CENTER);
-        isAfm.setFocusable(false);
-        isAfm.setSelected(true);
+        JLabel scaleLabel = new JLabel("Image Scale (nm):");
+        scaleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JButton continueButton = new JButton("Continue");
-        continueButton.addActionListener(new ActionListener() {
-        	@Override
-        	public void actionPerformed(ActionEvent event) {
-        		if (file == null) {
-        			errorLabel.setForeground(Color.red);
-        			errorLabel.setText("No File Selected");
-        		} else {
-        			String[] args = new String[2];
-        			args[0] = file.getAbsolutePath();
-        			args[1] = "" + isAfm.isSelected();
-        			frame.setVisible(false);
-        			frame.dispose();
-        			ImageViewer.main(args);
-        		}
-        	}
-        });
-        continueButton.setFocusable(false);
+        JTextField scaleInput = new JTextField("100.0");
+        scaleInput.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JButton submit = new JButton("Submit");
+        submit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				double scale = -1;
+				try {
+					scale = Double.parseDouble(scaleInput.getText());
+				}catch (Exception e) {}
+				
+				if (file == null) {
+					errorLabel.setForeground(Color.RED);
+					errorLabel.setText("No File Selected");
+				} else if (scale <=0) {
+					errorLabel.setForeground(Color.RED);
+					errorLabel.setText("<html><center>Scale must be a</center><center>positive number.</center></html>");
+				} else {
+					BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
+					img = AFMUtils.blackAndWhite(img);
+					double size = AFMUtils.actualSize(img, scale);
+					img = AFMUtils.crop(img);
+					String imageName = file.getName();
+					imageName = "images/" + imageName.substring(0, imageName.length() - 4);
+					try {
+						ImageIO.write(img, "jpg", new File(imageName + "out1.jpg"));
+					} catch (IOException e) {}
+					img = ImageUtils.medianFilter(img);
+					img = AFMUtils.sharpen(img);
+					img = ImageUtils.contrastByRow(img);
+					try {
+						ImageIO.write(img, "jpg", new File(imageName + "out2.jpg"));
+					} catch (IOException e) {}
+					double density = TubeDetector.detectTubes(img) / size;
+					errorLabel.setForeground(new Color(0, 153, 0));
+					errorLabel.setText("<html>Density: " + GenUtils.roundThousandths(density) + " &micro;m<sup>-1</sup></html>");
+				}
+			}
+		});
         
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -108,8 +130,9 @@ public class FileSelect {
                 
                 fileButton.setFont(defaultFont);
                 fileLabel.setFont(defaultFont);
-                isAfm.setFont(defaultFont);
-                continueButton.setFont(defaultFont);
+                scaleLabel.setFont(defaultFont);
+                scaleInput.setFont(defaultFont);
+                submit.setFont(defaultFont);
                 errorLabel.setFont(defaultFont);
                 
                 frame.getContentPane().revalidate();
@@ -124,9 +147,9 @@ public class FileSelect {
         frame.getContentPane().setLayout(new GridLayout(3, 2, 0, 50));
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
-        frame.getContentPane().add(isAfm);
-        frame.getContentPane().add(new JLabel());
-        frame.getContentPane().add(continueButton);
+        frame.getContentPane().add(scaleLabel);
+        frame.getContentPane().add(scaleInput);
+        frame.getContentPane().add(submit);
         frame.getContentPane().add(errorLabel);
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -153,7 +176,7 @@ public class FileSelect {
     	
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	new FileSelect();
+            	new AFMUI();
             }
         });
     }

@@ -16,60 +16,28 @@ public class Main {
 
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
-		System.out.print("Enter file: ");
-		String file = in.next();
-		BufferedImage img = ImageUtils.readImage("images/" + file + ".jpg");
+		BufferedImage img = ImageUtils.readImage("images/AFM2.tif");
 		
-		System.out.print("Enter noise reduction strength: ");
-		int strength = in.nextInt();
+		img = AFMUtils.blackAndWhite(img);
 		
-		double size = ImageUtils.actualSize(img);
-		System.out.println(size + " micrometers");
+		double size = AFMUtils.actualSize(img, 100);
 		
-		//enhance image
-		img = ImageUtils.averageExposure(img);
-		img = ImageUtils.contrast(img);
+		img = AFMUtils.crop(img);
+		try {
+			ImageIO.write(img, "jpg", new File("images/AFM1out.jpg"));
+		} catch (IOException e) {}
+		
+		img = ImageUtils.medianFilter(img);
+		
+		img = AFMUtils.sharpen(img);
+		
 		img = ImageUtils.contrastByRow(img);
 		
-		//reduce noise
-		for (int i = 0; i < strength; i++) {
-			img = ImageUtils.medianFilter(img);
-		}
+		System.out.println(TubeDetector.detectTubes(img) / size);
 		try {
-			ImageIO.write(img, "jpg", new File("images/" + file + "noise.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			ImageIO.write(img, "jpg", new File("images/AFM1out2.jpg"));
+		} catch (IOException e) {}
 		
-		img = TubeDetector.drawTubes(img);
-		img = ImageUtils.medianFilter(img);
-		try {
-			ImageIO.write(img, "jpg", new File("images/" + file + "redraw.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//edge detection
-		CannyEdgeDetector detector = new CannyEdgeDetector();
-		detector.setSourceImage(img);
-		detector.setLowThreshold(2f);
-		detector.setHighThreshold(5f);
-		detector.setGaussianKernelRadius(3f);
-		detector.process();
-		BufferedImage edges = detector.getEdgesImage();
-		try {
-			ImageIO.write(edges, "jpg", new File("images/" + file + "z.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		int tubes = TubeDetector.detectTubes(edges) / 2;
-		
-		System.out.println("Estimated tubes: " + tubes);
-		System.out.println("Estimated density: " + tubes / size);
 		System.out.println("Done!");
 		in.close();
 	}
