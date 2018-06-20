@@ -20,7 +20,7 @@ public class Main {
 		
 		img = AFMUtils.blackAndWhite(img);
 		
-		double size = AFMUtils.actualSize(img, 100);
+		double size = AFMUtils.actualSize(img);
 		
 		img = AFMUtils.crop(img);
 		try {

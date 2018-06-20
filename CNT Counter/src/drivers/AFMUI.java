@@ -66,43 +66,35 @@ public class AFMUI {
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JLabel scaleLabel = new JLabel("Image Scale (nm):");
+      /*  JLabel scaleLabel = new JLabel("Image Scale (nm):");
         scaleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
         JTextField scaleInput = new JTextField("100.0");
-        scaleInput.setHorizontalAlignment(SwingConstants.CENTER);
+        scaleInput.setHorizontalAlignment(SwingConstants.CENTER);*/
         
         JButton submit = new JButton("Submit");
         submit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				double scale = -1;
-				try {
-					scale = Double.parseDouble(scaleInput.getText());
-				}catch (Exception e) {}
-				
 				if (file == null) {
 					errorLabel.setForeground(Color.RED);
 					errorLabel.setText("No File Selected");
-				} else if (scale <=0) {
-					errorLabel.setForeground(Color.RED);
-					errorLabel.setText("<html><center>Scale must be a</center><center>positive number.</center></html>");
 				} else {
 					BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
 					img = AFMUtils.blackAndWhite(img);
-					double size = AFMUtils.actualSize(img, scale);
+					double size = AFMUtils.actualSize(img);
 					img = AFMUtils.crop(img);
 					String imageName = file.getName();
 					imageName = "images/" + imageName.substring(0, imageName.length() - 4);
-					try {
+					/*try {
 						ImageIO.write(img, "jpg", new File(imageName + "out1.jpg"));
-					} catch (IOException e) {}
+					} catch (IOException e) {}*/
 					img = ImageUtils.medianFilter(img);
 					img = AFMUtils.sharpen(img);
 					img = ImageUtils.contrastByRow(img);
-					try {
+					/*try {
 						ImageIO.write(img, "jpg", new File(imageName + "out2.jpg"));
-					} catch (IOException e) {}
+					} catch (IOException e) {}*/
 					double density = TubeDetector.detectTubes(img) / size;
 					errorLabel.setForeground(new Color(0, 153, 0));
 					errorLabel.setText("<html>Density: " + GenUtils.roundThousandths(density) + " &micro;m<sup>-1</sup></html>");
@@ -130,8 +122,8 @@ public class AFMUI {
                 
                 fileButton.setFont(defaultFont);
                 fileLabel.setFont(defaultFont);
-                scaleLabel.setFont(defaultFont);
-                scaleInput.setFont(defaultFont);
+                /*scaleLabel.setFont(defaultFont);
+                scaleInput.setFont(defaultFont);*/
                 submit.setFont(defaultFont);
                 errorLabel.setFont(defaultFont);
                 
@@ -144,11 +136,11 @@ public class AFMUI {
             }
         });
 
-        frame.getContentPane().setLayout(new GridLayout(3, 2, 0, 50));
+        frame.getContentPane().setLayout(new GridLayout(2, 2, 0, 50));
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
-        frame.getContentPane().add(scaleLabel);
-        frame.getContentPane().add(scaleInput);
+        /*frame.getContentPane().add(scaleLabel);
+        frame.getContentPane().add(scaleInput);*/
         frame.getContentPane().add(submit);
         frame.getContentPane().add(errorLabel);
 

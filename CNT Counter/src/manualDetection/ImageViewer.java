@@ -63,7 +63,7 @@ public class ImageViewer {
 		BufferedImage img = ImageUtils.readImage(file);
 		
 		if (isAfm) {
-			actualSize = AFMUtils.actualSize(img, 100);
+			actualSize = AFMUtils.actualSize(img);
 			img = AFMUtils.crop(img);
 			img = img.getSubimage(0, 0, img.getWidth(), img.getHeight());
 		} else {
