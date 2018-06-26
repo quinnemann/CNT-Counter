@@ -1,8 +1,5 @@
 package manualDetection;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -14,19 +11,14 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
-import drivers.UI;
 import utils.GenUtils;
-import utils.TubeDetector;
 
 public class Results {
 	 public Results(int tubes, double size){
@@ -62,14 +54,11 @@ public class Results {
 	        quit.setFocusable(false);
 
 	        frame.addComponentListener(new ComponentListener() {
+	            @Override
+	            public void componentHidden(ComponentEvent arg0) {}
 
 	            @Override
-	            public void componentHidden(ComponentEvent arg0) {
-	            }
-
-	            @Override
-	            public void componentMoved(ComponentEvent arg0) {
-	            }
+	            public void componentMoved(ComponentEvent arg0) {}
 
 	            @Override
 	            public void componentResized(ComponentEvent arg0) {
@@ -86,9 +75,7 @@ public class Results {
 	            }
 
 	            @Override
-	            public void componentShown(ComponentEvent e) {
-
-	            }
+	            public void componentShown(ComponentEvent e) {}
 	        });
 
 	        frame.getContentPane().setLayout(new GridLayout(2, 2, 50, 50));
@@ -115,13 +102,7 @@ public class Results {
 	    public static void main(String[] args) {
 	    	try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (UnsupportedLookAndFeelException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 	    	

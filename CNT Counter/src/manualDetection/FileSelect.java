@@ -91,14 +91,11 @@ public class FileSelect {
         errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         frame.addComponentListener(new ComponentListener() {
-
-            @Override
-            public void componentHidden(ComponentEvent arg0) {
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent arg0) {
-            }
+        	@Override
+            public void componentHidden(ComponentEvent arg0) {}
+        	
+        	@Override
+            public void componentMoved(ComponentEvent arg0) {}
 
             @Override
             public void componentResized(ComponentEvent arg0) {
@@ -116,9 +113,7 @@ public class FileSelect {
             }
 
             @Override
-            public void componentShown(ComponentEvent e) {
-
-            }
+            public void componentShown(ComponentEvent e) {}
         });
 
         frame.getContentPane().setLayout(new GridLayout(3, 2, 0, 50));

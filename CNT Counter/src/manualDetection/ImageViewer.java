@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -19,37 +18,27 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import dataStructures.ImageStack;
 import utils.AFMUtils;
+import utils.GenUtils;
 import utils.ImageUtils;
 
 public class ImageViewer {
 	
 	private ImageStack imageStack;
 	private BufferedImage display;
-	private Image scaledDisplay;
 	private int vertPos = 0;
 	private double actualSize;
 	private double ratio;
@@ -83,6 +72,9 @@ public class ImageViewer {
 		imageStack.push(img);
 		display = img;
 		ratio = (double)img.getWidth() / img.getHeight();
+		int width = img.getWidth();
+		
+		ArrayList<Integer> linePos = new ArrayList<Integer>();
 
 		JLabel imgDisplay = new JLabel(new ImageIcon(display));
 		
@@ -93,8 +85,10 @@ public class ImageViewer {
         	@Override
         	public void actionPerformed(ActionEvent event) {
         		String[] args = new String[2];
-        		args[0] = "" + (imageStack.size() - 2);
-        		args[1] = "" + actualSize;
+        		args[0] = "" + (linePos.size());
+        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+        				* ((double)actualSize / width);
+        		args[1] = "" + countedSize;
         		frame.setVisible(false);
         		frame.dispose();
         		Results.main(args);
@@ -104,12 +98,10 @@ public class ImageViewer {
 
         frame.addComponentListener(new ComponentListener() {
             @Override
-            public void componentHidden(ComponentEvent arg0) {
-            }
+            public void componentHidden(ComponentEvent arg0) {}
 
             @Override
-            public void componentMoved(ComponentEvent arg0) {
-            }
+            public void componentMoved(ComponentEvent arg0) {}
 
             @Override
             public void componentResized(ComponentEvent arg0) {
@@ -129,15 +121,14 @@ public class ImageViewer {
         
         frame.addMouseListener(new MouseListener() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				
-			}
+			public void mouseClicked(MouseEvent e) {}
+			
 			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
+			public void mouseEntered(MouseEvent e) {}
+			
 			@Override
-			public void mouseExited(MouseEvent e) {
-			}
+			public void mouseExited(MouseEvent e) {}
+			
 			@Override
 			public void mousePressed(MouseEvent e) {
 				Point position = imgDisplay.getMousePosition();
@@ -159,22 +150,26 @@ public class ImageViewer {
 						g2d.setColor(Color.RED);
 					}
 					g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
+					linePos.add((int)position.getX());
+					//printLinePos(linePos);
 				}
 				imageStack.push(cpy);
 				
 				g2d.dispose();
 				
+				status.setText("Tubes: " + (imageStack.size() - 2));
+				
 				frame.getContentPane().revalidate();
 			}
+			
 			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
+			public void mouseReleased(MouseEvent e) {}
         });
         
         frame.addMouseMotionListener(new MouseMotionListener() {
 			@Override
-			public void mouseDragged(MouseEvent arg0) {
-			}
+			public void mouseDragged(MouseEvent arg0) {}
+			
 			@Override
 			public void mouseMoved(MouseEvent arg0) {
 				Point position = imgDisplay.getMousePosition();
@@ -207,29 +202,28 @@ public class ImageViewer {
         });
         
         frame.addKeyListener(new KeyListener() {
-
 			@Override
-			public void keyPressed(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void keyPressed(KeyEvent arg0) {}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				if (imageStack.size() > 1 && arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 					imageStack.pop();
 					display = imageStack.peek();
+					if (linePos.size() != 0) {
+						linePos.remove(linePos.size() - 1);
+					}
+					//printLinePos(linePos);
 					imgDisplay.setIcon(new ImageIcon(display));
 				}
 				
-				if (arg0.getKeyCode() == KeyEvent.VK_SPACE) {
+				/*if (arg0.getKeyCode() == KeyEvent.VK_SPACE) {
 					System.out.println(imageStack.size());
-				}
+				}*/
 			}
 
 			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
+			public void keyTyped(KeyEvent arg0) {}
         });
 
         frame.getContentPane().setLayout(new FlowLayout());
@@ -254,13 +248,7 @@ public class ImageViewer {
 	public static void main(String[] args) {
     	try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	
@@ -270,4 +258,11 @@ public class ImageViewer {
             }
         });
     }
+	
+	public void printLinePos(ArrayList<Integer> linePos) {
+		for (int i = 0; i < linePos.size(); i++) {
+			System.out.print(linePos.get(i) + ", ");
+		}
+		System.out.println();
+	}
 }
