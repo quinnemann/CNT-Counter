@@ -21,13 +21,30 @@ import javax.swing.WindowConstants;
 import utils.GenUtils;
 
 public class Results {
-	 public Results(int tubes, double size){
-		 	double density = GenUtils.roundThousandths(tubes / size);
+	 public Results(String[] tubes, String[] sizes){
+		 double[] densities = new double[tubes.length];
+		 for(int i = 0; i < tubes.length; i++) {
+			 int tube = Integer.parseInt(tubes[i]);
+			 double size = Double.parseDouble(sizes[i]);
+			 densities[i] = tube/size;
+		 }
+		 
+		 
+		 	double density = GenUtils.roundThousandths(GenUtils.average(densities));
 		 
 	    	JFrame frame = new JFrame();
 	    	
-	        JLabel infoLabel = new JLabel("<html><center>" + tubes + " Tubes</center>"
-	        		+ "<center>Image Size: " + GenUtils.roundThousandths(size) + " &micro;m</center></html>");
+	    	String densityString = "";
+	    	for (int i = 0; i < densities.length; i++) {
+	    		if (i == densities.length - 1) {
+	    			densityString += GenUtils.roundThousandths(densities[i]);
+	    		} else {
+	    			densityString += GenUtils.roundThousandths(densities[i]) + ", ";
+	    		}
+	    	}
+	    	
+	        JLabel infoLabel = new JLabel("<html><center>" + tubes.length + " Lines</center>"
+	        		+ "<center>Densities: " + densityString + " &micro;m</center></html>"); //TODO: fix size and tubes display
 	        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        
 	        JLabel densityLabel = new JLabel("<html>Density: " + density + " &micro;m<sup>-1</sup></html>");
@@ -108,7 +125,7 @@ public class Results {
 	    	
 	    	SwingUtilities.invokeLater(new Runnable() {
 	            public void run() {
-	            	new Results(Integer.parseInt(args[0]), Double.parseDouble(args[1]));
+	            	new Results(args[0].split(","), args[1].split(","));
 	            }
 	        });
 	    }

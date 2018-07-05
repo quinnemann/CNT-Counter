@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -43,6 +44,8 @@ public class ImageViewer {
 	private double actualSize;
 	private double ratio;
 	private double scale;
+	private String lineCounts = "";
+	private String sizeCounts = "";
 	
 	public ImageViewer(String file, boolean isAfm) {
 		JFrame frame = new JFrame();
@@ -79,16 +82,35 @@ public class ImageViewer {
 		JLabel imgDisplay = new JLabel(new ImageIcon(display));
 		
 		JLabel status = new JLabel("Tubes: 0");
+		
+		JButton newRowButton = new JButton("New Row");
+		newRowButton.addActionListener(new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent event) {
+        		if (linePos.size() > 1) {
+	        		lineCounts += linePos.size() + ",";
+	        		sizeCounts += (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+	        				* ((double)actualSize / width) + ",";
+	        		linePos.clear();
+	        		BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
+	        		imageStack = new ImageStack();
+	        		imageStack.push(cpy);
+        		}
+        	}
+        });
+		newRowButton.setFocusable(false);
         
         JButton continueButton = new JButton("Calculate");
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
         		String[] args = new String[2];
-        		args[0] = "" + (linePos.size());
+        		args[0] = lineCounts + (linePos.size());
+        		System.out.println(args[0]);
         		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
         				* ((double)actualSize / width);
-        		args[1] = "" + countedSize;
+        		args[1] = sizeCounts + countedSize;
+        		System.out.println(args[1]);
         		frame.setVisible(false);
         		frame.dispose();
         		Results.main(args);
@@ -109,6 +131,7 @@ public class ImageViewer {
                 int height = frame.getHeight();
                 FileSelect.defaultFont = new Font(FileSelect.defaultFont.getFontName(), FileSelect.defaultFont.getStyle(), (width + height) / 50);
                 
+                newRowButton.setFont(FileSelect.defaultFont);
                 continueButton.setFont(FileSelect.defaultFont);
                 status.setFont(FileSelect.defaultFont);
                
@@ -228,8 +251,8 @@ public class ImageViewer {
 
         frame.getContentPane().setLayout(new FlowLayout());
         frame.getContentPane().add(imgDisplay);
-        GridLayout bottom = new GridLayout(2, 1, 0, 0);
         //frame.getContentPane().add(status);
+        frame.getContentPane().add(newRowButton);
         frame.getContentPane().add(continueButton);
         
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -240,7 +263,8 @@ public class ImageViewer {
         frame.setIconImage(icon.getImage());
         
         frame.setLocationRelativeTo(null);
-        frame.setTitle("CNT Counter");
+        File actualFile = new File(file);
+        frame.setTitle(actualFile.getName());
         frame.setResizable(false);
         frame.setVisible(true);
 	}

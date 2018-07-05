@@ -21,6 +21,14 @@ public class GenUtils {
 		return sum / (double)arr.size();
 	}
 	
+	public static double average(double[] arr) {
+		double sum = 0;
+		for(double n : arr) {
+			sum += n;
+		}
+		return sum / arr.length;
+	}
+	
 	public static double averageDiff(ArrayList<Integer> arr) {
 		Collections.sort(arr);
 		
@@ -34,6 +42,15 @@ public class GenUtils {
 	
 	public static int max(int[] arr) {
 		int max = arr[0];
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] > max)
+				max = arr[i];
+		}
+		return max;
+	}
+	
+	public static double max(double[] arr) {
+		double max = arr[0];
 		for (int i = 1; i < arr.length; i++) {
 			if (arr[i] > max)
 				max = arr[i];
@@ -59,6 +76,15 @@ public class GenUtils {
 		return min;
 	}
 	
+	public static double min(double[] arr) {
+		double min = arr[0];
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] < min)
+				min = arr[i];
+		}
+		return min;
+	}
+	
 	public static int min(ArrayList<Integer> arr) {
 		int min = arr.get(0);
 		for (int i = 1; i < arr.size(); i++) {
@@ -74,4 +100,19 @@ public class GenUtils {
 		x = y / 1000.0;
 		return x;
 	}
-}
+	
+	public static double degreeToRadian(double degree) {
+		return degree * Math.PI / 180.0;
+	}
+	
+	public static int numPeaks(double[] vals) {
+		int count = 0;
+		for (int i = 1; i < vals.length - 1; i++) {
+			if (vals[i] > vals[i - 1] && vals[i] > vals[i+1]) {
+				count++;
+			}
+		}
+		
+		return count;
+	}
+ }

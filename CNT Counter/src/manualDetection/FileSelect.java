@@ -50,11 +50,12 @@ public class FileSelect {
 				fc.setAcceptAllFileFilterUsed(false);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.jpg, *.tif", "jpg", "tif");
 				fc.addChoosableFileFilter(filter);
+				fc.setMultiSelectionEnabled(true);
 				
 				int returnValue = fc.showOpenDialog(frame);
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					file = fc.getSelectedFile();
+					file = fc.getSelectedFiles()[0];
 					fileLabel.setText("<html><center><p>" + file.getName() + "</p></center></html>");
 					errorLabel.setText("");
 				}
