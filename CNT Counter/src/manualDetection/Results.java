@@ -1,5 +1,6 @@
 package manualDetection;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -8,49 +9,88 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import utils.GenUtils;
 
 public class Results {
-	 public Results(String[] tubes, String[] sizes){
-		 double[] densities = new double[tubes.length];
-		 for(int i = 0; i < tubes.length; i++) {
-			 int tube = Integer.parseInt(tubes[i]);
-			 double size = Double.parseDouble(sizes[i]);
-			 densities[i] = tube/size;
-		 }
-		 
-		 
-		 	double density = GenUtils.roundThousandths(GenUtils.average(densities));
-		 
-	    	JFrame frame = new JFrame();
-	    	
-	    	String densityString = "";
-	    	for (int i = 0; i < densities.length; i++) {
-	    		if (i == densities.length - 1) {
-	    			densityString += GenUtils.roundThousandths(densities[i]);
-	    		} else {
-	    			densityString += GenUtils.roundThousandths(densities[i]) + ", ";
-	    		}
-	    	}
-	    	
-	        JLabel infoLabel = new JLabel("<html><center>" + tubes.length + " Lines</center>"
-	        		+ "<center>Densities: " + densityString + " &micro;m</center></html>"); //TODO: fix size and tubes display
-	        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+	private File file = null;
+	
+	 public Results(String[] args){
+		  JFrame frame = new JFrame();
+		  
+	        JButton saveButton = new JButton("Select Save File");
+	        saveButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
+					fc.setDialogTitle("Save Data");
+					fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
+					FileSelect.setFileChooserFont(fc.getComponents());
+					
+					fc.setAcceptAllFileFilterUsed(false);
+					FileNameExtensionFilter filter = new FileNameExtensionFilter("*.csv", "csv");
+					fc.addChoosableFileFilter(filter);
+					
+					int returnValue = fc.showSaveDialog(frame);
+
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						file = fc.getSelectedFile();
+					}
+					
+					PrintWriter pw = null;
+					try {
+						pw = new PrintWriter(file);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+					
+					String files[] = args[2].split("\\?");
+					String tubesByFile[] = args[0].split(";");
+					String distancesByFile[] = args[1].split(";");
+					
+					pw.println("Filename,Row,Tubes,Distance,Density");
+					
+					for (int i = 0; i < files.length; i++) {
+						File file = new File(files[i]);
+						String tubes[] = tubesByFile[i].split(",");
+						String distances[] = distancesByFile[i].split(",");
+						for (int j = 0; j < tubes.length; j++) {
+							pw.println(file.getName() + "," + (j + 1) + "," + tubes[j] + "," + distances[j] + "," +
+									GenUtils.roundThousandths(Integer.parseInt(tubes[j]) / Double.parseDouble(distances[j])));
+						}
+					}
+					
+					pw.close();
+					
+					/*try {
+						Desktop.getDesktop().edit(file);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}*/
+				}
+			});
+	        saveButton.setFocusable(false);
 	        
-	        JLabel densityLabel = new JLabel("<html>Density: " + density + " &micro;m<sup>-1</sup></html>");
+	        JLabel densityLabel = new JLabel("<html>Density: " + "PLACEHOLDER" + " &micro;m<sup>-1</sup></html>");
 	        densityLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        
-	        JButton restart = new JButton("New Image");
+	        JButton restart = new JButton("Restart");
 	        restart.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
@@ -83,7 +123,7 @@ public class Results {
 	                int height = frame.getHeight();
 	                FileSelect.defaultFont = new Font(FileSelect.defaultFont.getFontName(), FileSelect.defaultFont.getStyle(), (width + height) / 50);
 	                
-	                infoLabel.setFont(FileSelect.defaultFont);
+	                saveButton.setFont(FileSelect.defaultFont);
 	                densityLabel.setFont(FileSelect.defaultFont);
 	                restart.setFont(FileSelect.defaultFont);
 	                quit.setFont(FileSelect.defaultFont);
@@ -96,7 +136,7 @@ public class Results {
 	        });
 
 	        frame.getContentPane().setLayout(new GridLayout(2, 2, 50, 50));
-	        frame.getContentPane().add(infoLabel);
+	        frame.getContentPane().add(saveButton);
 	        frame.getContentPane().add(densityLabel);
 	        frame.getContentPane().add(restart);
 	        frame.getContentPane().add(quit);
@@ -125,7 +165,7 @@ public class Results {
 	    	
 	    	SwingUtilities.invokeLater(new Runnable() {
 	            public void run() {
-	            	new Results(args[0].split(","), args[1].split(","));
+	            	new Results(args);
 	            }
 	        });
 	    }

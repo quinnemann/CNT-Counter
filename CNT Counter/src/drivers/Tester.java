@@ -16,7 +16,7 @@ import utils.ImageUtils;
 public class Tester {
 
 	public static void main(String[] args) {
-		BufferedImage img = ImageUtils.readImage("images/bad.jpg");
+		BufferedImage img = ImageUtils.readImage("images/JEOL4.jpg");
 		double actualSize = ImageUtils.actualSize(img);
 		img = ImageUtils.cutBottom(img);
 		//img = ImageUtils.averageExposure(img);
@@ -44,32 +44,51 @@ public class Tester {
 		
 		try {
 			ImageIO.write(combo, "jpg", new File("images/graph.jpg"));
-		} catch (IOException e1) {}*/
+		} catch (IOException e1) {}*/		
 		
-		double[] vals = new double[img.getWidth()];
-		for (int i = 0; i < vals.length; i++) {
-			double angle = Grapher.maxAngle(img, i, 500, 20, 45, 135, 5);
-			vals[i] = GenUtils.average(Grapher.getAngledPixels(img, i, 500, 20, angle));
+		int scanHeight = img.getHeight() / 4;
+		double[] vals1 = new double[img.getWidth()];
+		for (int i = 0; i < vals1.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
+			vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
 		}
 		
-		vals = Grapher.contrastVals(vals);
-		
-		for (int i = 0; i < 4; i++) {
-			vals = avgVals(vals);
+		scanHeight *= 2;
+		double[] vals2 = new double[img.getWidth()];
+		for (int i = 0; i < vals2.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
+			vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
 		}
 		
-		System.out.println(GenUtils.numPeaks(vals));
-		System.out.println(actualSize);
-		System.out.println(GenUtils.numPeaks(vals) / actualSize);
+		scanHeight += img.getHeight() / 4;
+		double[] vals3 = new double[img.getWidth()];
+		for (int i = 0; i < vals3.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
+			vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
+		}
 		
-		BufferedImage graph = Grapher.drawGraph(vals);
+		vals1 = Grapher.contrastVals(vals1);
+		vals2 = Grapher.contrastVals(vals2);
+		vals3 = Grapher.contrastVals(vals3);
+		
+		for (int i = 0; i < 15; i++) {
+			vals1 = avgVals(vals1);
+			vals2 = avgVals(vals2);
+			vals3 = avgVals(vals3);
+		}
+		
+		System.out.println(GenUtils.numPeaks(vals1) / actualSize);
+		System.out.println(GenUtils.numPeaks(vals2) / actualSize);
+		System.out.println(GenUtils.numPeaks(vals3) / actualSize);
+		
+		BufferedImage graph = Grapher.drawGraph(vals2);
 		BufferedImage combo = new BufferedImage(img.getWidth(), img.getHeight() + 256, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = combo.createGraphics();
 		g2d.drawImage(img, 0, 0, null);
 		g2d.drawImage(graph, 0, img.getHeight(), null);
 		
 		g2d.setColor(Color.GREEN);
-		g2d.fillRect(0, 499, img.getWidth(), 3);
+		g2d.fillRect(0, (img.getHeight() / 2) - 1, img.getWidth(), 3);
 		
 		try {ImageIO.write(combo, "jpg", new File("images/graph.jpg"));} catch (IOException e) {}
 	}

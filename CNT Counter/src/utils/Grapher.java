@@ -5,8 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import dataStructures.Point;
-
 public class Grapher {
 	
 	public static double[] getGraph(BufferedImage img, int row, int size) {

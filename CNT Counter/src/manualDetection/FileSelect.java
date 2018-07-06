@@ -19,19 +19,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import utils.TubeDetector;
-
 public class FileSelect {
-	private File file = null;
-	private JLabel fileLabel = new JLabel("No File Selected");
+	private File[] files = null;
+	private JLabel fileLabel = new JLabel("No Files Selected");
 	public static Font defaultFont = new Font("Arial", Font.PLAIN, 0);
 	private JLabel errorLabel = new JLabel("");
 
@@ -55,8 +51,12 @@ public class FileSelect {
 				int returnValue = fc.showOpenDialog(frame);
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					file = fc.getSelectedFiles()[0];
-					fileLabel.setText("<html><center><p>" + file.getName() + "</p></center></html>");
+					files = fc.getSelectedFiles();
+					if (files.length == 1) {
+						fileLabel.setText("<html><center><p>" + files.length + " File Selected</p></center></html>");
+					} else {
+						fileLabel.setText("<html><center><p>" + files.length + " Files Selected</p></center></html>");
+					}
 					errorLabel.setText("");
 				}
 			}
@@ -74,13 +74,22 @@ public class FileSelect {
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		if (file == null) {
+        		if (files == null) {
         			errorLabel.setForeground(Color.red);
-        			errorLabel.setText("No File Selected");
+        			errorLabel.setText("No Files Selected");
         		} else {
-        			String[] args = new String[2];
-        			args[0] = file.getAbsolutePath();
-        			args[1] = "" + isAfm.isSelected();
+        			String[] args = new String[4];
+        			args[0] = "";
+        			for (int i = 0 ; i < files.length; i++) {
+        				if (i == files.length - 1) {
+        					args[0] += files[i].getAbsolutePath();
+        				} else {
+        					args[0] += files[i].getAbsolutePath() + "?";
+        				}
+        			}
+        			args[1] = "";
+        			args[2] = "";
+        			args[3] = "0";
         			frame.setVisible(false);
         			frame.dispose();
         			ImageViewer.main(args);
@@ -117,11 +126,11 @@ public class FileSelect {
             public void componentShown(ComponentEvent e) {}
         });
 
-        frame.getContentPane().setLayout(new GridLayout(3, 2, 0, 50));
+        frame.getContentPane().setLayout(new GridLayout(2, 2, 0, 50));
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
-        frame.getContentPane().add(isAfm);
-        frame.getContentPane().add(new JLabel());
+        //frame.getContentPane().add(isAfm);
+        //frame.getContentPane().add(new JLabel());
         frame.getContentPane().add(continueButton);
         frame.getContentPane().add(errorLabel);
 
@@ -154,7 +163,7 @@ public class FileSelect {
         });
     }
     
-    private void setFileChooserFont(Component[] comp)
+    public static void setFileChooserFont(Component[] comp)
     {  
       for(int x = 0; x < comp.length; x++)  
       {  

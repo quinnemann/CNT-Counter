@@ -1,12 +1,12 @@
 package manualDetection;
 
+import static org.junit.Assert.assertEquals;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -28,7 +28,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 import dataStructures.ImageStack;
@@ -42,17 +41,25 @@ public class ImageViewer {
 	private BufferedImage display;
 	private int vertPos = 0;
 	private double actualSize;
-	private double ratio;
 	private double scale;
 	private String lineCounts = "";
 	private String sizeCounts = "";
+	private boolean isAfm = false;
 	
-	public ImageViewer(String file, boolean isAfm) {
+	public ImageViewer(String[] args) {
+		String[] files = args[0].split("\\?");
+		
+		int count = Integer.parseInt(args[3]);
+		
 		JFrame frame = new JFrame();
 		
 		imageStack = new ImageStack();
 		
-		BufferedImage img = ImageUtils.readImage(file);
+		BufferedImage img = ImageUtils.readImage(files[count]);
+		
+		if (img.getWidth() < 1000) {
+			isAfm = true;
+		}
 		
 		if (isAfm) {
 			actualSize = AFMUtils.actualSize(img);
@@ -74,7 +81,6 @@ public class ImageViewer {
 		
 		imageStack.push(img);
 		display = img;
-		ratio = (double)img.getWidth() / img.getHeight();
 		int width = img.getWidth();
 		
 		ArrayList<Integer> linePos = new ArrayList<Integer>();
@@ -100,20 +106,37 @@ public class ImageViewer {
         });
 		newRowButton.setFocusable(false);
         
-        JButton continueButton = new JButton("Calculate");
+        JButton continueButton = new JButton("");
+        if (count == files.length - 1) {
+        	continueButton.setText("Continue");
+        } else {
+        	continueButton.setText("Next Image");
+        }
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		String[] args = new String[2];
-        		args[0] = lineCounts + (linePos.size());
-        		System.out.println(args[0]);
-        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
-        				* ((double)actualSize / width);
-        		args[1] = sizeCounts + countedSize;
-        		System.out.println(args[1]);
-        		frame.setVisible(false);
-        		frame.dispose();
-        		Results.main(args);
+        		if (count == files.length - 1) {
+	        		String[] newArgs = new String[3];
+	        		newArgs[0] = args[1] + lineCounts + linePos.size();
+	        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+	        				* ((double)actualSize / width);
+	        		newArgs[1] = args[2] + sizeCounts + countedSize;
+	        		newArgs[2] = args[0];
+	        		frame.setVisible(false);
+	        		frame.dispose();
+	        		Results.main(newArgs);
+        		} else {
+        			String[] newArgs = new String[4];
+        			newArgs[0] = args[0];
+        			newArgs[1] = args[1] + lineCounts + linePos.size() + ";";
+        			double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+	        				* ((double)actualSize / width);
+	        		newArgs[2] = args[2] + sizeCounts + countedSize + ";";
+	        		newArgs[3] = "" + (count + 1);
+	        		frame.setVisible(false);
+	        		frame.dispose();
+	        		ImageViewer.main(newArgs);
+        		}
         	}
         });
         continueButton.setFocusable(false);
@@ -263,8 +286,8 @@ public class ImageViewer {
         frame.setIconImage(icon.getImage());
         
         frame.setLocationRelativeTo(null);
-        File actualFile = new File(file);
-        frame.setTitle(actualFile.getName());
+        File actualFile = new File(files[count]);
+        frame.setTitle(actualFile.getName() + " (" + (count + 1) + "/" + files.length + ")");
         frame.setResizable(false);
         frame.setVisible(true);
 	}
@@ -278,7 +301,7 @@ public class ImageViewer {
     	
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	new ImageViewer(args[0], args[1].equals("true"));
+            	new ImageViewer(args);
             }
         });
     }
