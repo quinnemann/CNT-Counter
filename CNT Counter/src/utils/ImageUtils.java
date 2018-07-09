@@ -4,7 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -438,4 +441,42 @@ public class ImageUtils {
 	    return bimage;
 	}
 	
+	public static BufferedImage gaussianBlur(BufferedImage img) {
+		Kernel kernel = new Kernel(9, 9, new float[] {
+				0f, 0.000001f, 0.000014f, 0.000055f, 0.000088f, 0.000055f, 0.000014f, 0.000001f, 0f, 
+				0.000001f, 0.000036f, 0.000362f, 0.001445f, 0.002289f, 0.001445f, 0.000362f, 0.000036f, 0.000001f,
+				0.000014f, 0.000362f, 0.003672f, 0.014648f, 0.023205f, 0.014648f, 0.003672f, 0.000362f, 0.000014f,
+				0.000055f, 0.001445f, 0.014648f, 0.058434f, 0.092566f, 0.058434f, 0.014648f, 0.001445f, 0.000055f,
+				0.000088f, 0.002289f, 0.023205f, 0.092566f, 0.146634f, 0.092566f, 0.023205f, 0.002289f, 0.000088f,
+				0.000055f, 0.001445f, 0.014648f, 0.058434f, 0.092566f, 0.058434f, 0.014648f, 0.001445f, 0.000055f,
+				0.000014f, 0.000362f, 0.003672f, 0.014648f, 0.023205f, 0.014648f, 0.003672f, 0.000362f, 0.000014f,
+				0.000001f, 0.000036f, 0.000362f, 0.001445f, 0.002289f, 0.001445f, 0.000362f, 0.000036f, 0.000001f,
+				0f, 0.000001f, 0.000014f, 0.000055f, 0.000088f, 0.000055f, 0.000014f, 0.000001f, 0f});
+		    BufferedImageOp op = new ConvolveOp(kernel);
+		    return op.filter(img, null);
+	}
+	
+	public static BufferedImage sobel3(BufferedImage img) {
+		Kernel kernel = new Kernel(3, 3, new float[]{
+				-1f, 0f, 1f,
+				-2f, 0f, 2f,
+				-1f, 0f, 1f
+		});
+		BufferedImageOp op = new ConvolveOp(kernel);
+		return op.filter(img, null);
+	}
+	
+	public static BufferedImage sobel7(BufferedImage img) {
+		Kernel kernel = new Kernel(7, 7, new float[]{
+				0f, -1f, -2f, 0f, 2f, 1f, 0f,
+				-1f, -2f, -4f, 0f, 4f, 2f, 1f,
+				-2f, -4f, -8f, 0f, 8f, 4f, 2f,
+				-4f, -8f, -16f, 0f, 16f, 8f, 4f,
+				-2f, -4f, -8f, 0f, 8f, 4f, 2f,
+				-1f, -2f, -4f, 0f, 4f, 2f, 1f,
+				0f, -1f, -2f, 0f, 2f, 1f, 0f
+		});
+		BufferedImageOp op = new ConvolveOp(kernel);
+		return op.filter(img, null);
+	}
 }

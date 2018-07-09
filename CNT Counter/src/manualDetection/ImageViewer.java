@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -22,10 +23,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -52,6 +56,7 @@ public class ImageViewer {
 		int count = Integer.parseInt(args[3]);
 		
 		JFrame frame = new JFrame();
+		frame.setLayout(new GridLayout(1, 2, 0, 0));
 		
 		imageStack = new ImageStack();
 		
@@ -86,6 +91,8 @@ public class ImageViewer {
 		ArrayList<Integer> linePos = new ArrayList<Integer>();
 
 		JLabel imgDisplay = new JLabel(new ImageIcon(display));
+		imgDisplay.setHorizontalAlignment(JLabel.LEFT);
+		imgDisplay.setVerticalAlignment(JLabel.TOP);
 		
 		JLabel status = new JLabel("Tubes: 0");
 		
@@ -101,6 +108,7 @@ public class ImageViewer {
 	        		BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
 	        		imageStack = new ImageStack();
 	        		imageStack.push(cpy);
+	        		status.setText("Tubes: 0");
         		}
         	}
         });
@@ -272,11 +280,15 @@ public class ImageViewer {
 			public void keyTyped(KeyEvent arg0) {}
         });
 
-        frame.getContentPane().setLayout(new FlowLayout());
+        frame.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         frame.getContentPane().add(imgDisplay);
-        //frame.getContentPane().add(status);
-        frame.getContentPane().add(newRowButton);
-        frame.getContentPane().add(continueButton);
+        
+        JPanel bottom = new JPanel();
+        bottom.setLayout(new GridLayout(1, 3, 0, 0));
+        bottom.add(newRowButton);
+        bottom.add(status);
+        bottom.add(continueButton);
+        frame.getContentPane().add(bottom);
         
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         

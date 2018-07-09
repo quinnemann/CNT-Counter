@@ -16,7 +16,7 @@ import utils.ImageUtils;
 public class Tester {
 
 	public static void main(String[] args) {
-		BufferedImage img = ImageUtils.readImage("images/JEOL4.jpg");
+		BufferedImage img = ImageUtils.readImage("images/20170405_test3_35.jpg");
 		double actualSize = ImageUtils.actualSize(img);
 		img = ImageUtils.cutBottom(img);
 		//img = ImageUtils.averageExposure(img);
@@ -24,7 +24,10 @@ public class Tester {
 		
 		//img = ImageUtils.contrastByRow(img);
 		
-		//img = ImageUtils.medianFilter(img);
+		for (int i = 0; i < 5; i++) {
+			img = ImageUtils.gaussianBlur(img);
+		}
+		img = ImageUtils.sobel7(img);
 		
 		/*final int SIZE = 50;
 		
@@ -49,21 +52,21 @@ public class Tester {
 		int scanHeight = img.getHeight() / 4;
 		double[] vals1 = new double[img.getWidth()];
 		for (int i = 0; i < vals1.length; i++) {
-			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
+			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 0, 180, 5);
 			vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
 		}
 		
 		scanHeight *= 2;
 		double[] vals2 = new double[img.getWidth()];
 		for (int i = 0; i < vals2.length; i++) {
-			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
-			vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
+			double angle = Grapher.maxAngle(img, i, scanHeight, 5, 0, 180, 5);
+			vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 5, angle)) / 3;
 		}
 		
 		scanHeight += img.getHeight() / 4;
 		double[] vals3 = new double[img.getWidth()];
 		for (int i = 0; i < vals3.length; i++) {
-			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 45, 135, 5);
+			double angle = Grapher.maxAngle(img, i, scanHeight, 50, 0, 180, 5);
 			vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, 50, angle)) / 3;
 		}
 		
@@ -71,7 +74,7 @@ public class Tester {
 		vals2 = Grapher.contrastVals(vals2);
 		vals3 = Grapher.contrastVals(vals3);
 		
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 25; i++) {
 			vals1 = avgVals(vals1);
 			vals2 = avgVals(vals2);
 			vals3 = avgVals(vals3);

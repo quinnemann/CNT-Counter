@@ -38,13 +38,14 @@ public class Results {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
-					fc.setDialogTitle("Save Data");
+					fc.setDialogTitle("Select Save File");
 					fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 					FileSelect.setFileChooserFont(fc.getComponents());
 					
 					fc.setAcceptAllFileFilterUsed(false);
 					FileNameExtensionFilter filter = new FileNameExtensionFilter("*.csv", "csv");
 					fc.addChoosableFileFilter(filter);
+					fc.setSelectedFile(new File("output.csv"));
 					
 					int returnValue = fc.showSaveDialog(frame);
 
@@ -76,13 +77,6 @@ public class Results {
 					}
 					
 					pw.close();
-					
-					/*try {
-						Desktop.getDesktop().edit(file);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}*/
 				}
 			});
 	        saveButton.setFocusable(false);
