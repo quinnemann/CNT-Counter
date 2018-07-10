@@ -83,14 +83,13 @@ public class TubeDetector {
 		
 		//enhance image
 		img = ImageUtils.cutBottom(img);
-		img = ImageUtils.averageExposure(img);
-		img = ImageUtils.contrast(img);
-		img = ImageUtils.contrastByRow(img);
+		
 		
 		//reduce noise
 		for (int i = 0; i < strength; i++) {
-			img = ImageUtils.medianFilter(img);
+			img = ImageUtils.gaussianBlur(img);
 		}
+		img = ImageUtils.sobel7(img);
 		/*try {
 			ImageIO.write(img, "jpg", new File(file.getParent() + "//output1.jpg"));
 		} catch (IOException e) {

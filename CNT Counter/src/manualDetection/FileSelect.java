@@ -15,7 +15,6 @@ import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,7 +43,8 @@ public class FileSelect {
 				setFileChooserFont(fc.getComponents());
 				
 				fc.setAcceptAllFileFilterUsed(false);
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("*.jpg, *.tif", "jpg", "tif");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("JPEG and TIFF images", "jpg", "JPG", "jpeg", "JPEG", "tif", "TIF"
+						, "tiff", "TIFF");
 				fc.addChoosableFileFilter(filter);
 				fc.setMultiSelectionEnabled(true);
 				
@@ -64,11 +64,6 @@ public class FileSelect {
         fileButton.setFocusable(false);
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        JCheckBox isAfm = new JCheckBox("AFM Image");
-        isAfm.setHorizontalAlignment(SwingConstants.CENTER);
-        isAfm.setFocusable(false);
-        isAfm.setSelected(true);
         
         JButton continueButton = new JButton("Continue");
         continueButton.addActionListener(new ActionListener() {
@@ -115,7 +110,6 @@ public class FileSelect {
                 
                 fileButton.setFont(defaultFont);
                 fileLabel.setFont(defaultFont);
-                isAfm.setFont(defaultFont);
                 continueButton.setFont(defaultFont);
                 errorLabel.setFont(defaultFont);
                 
@@ -129,8 +123,6 @@ public class FileSelect {
         frame.getContentPane().setLayout(new GridLayout(2, 2, 0, 50));
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
-        //frame.getContentPane().add(isAfm);
-        //frame.getContentPane().add(new JLabel());
         frame.getContentPane().add(continueButton);
         frame.getContentPane().add(errorLabel);
 

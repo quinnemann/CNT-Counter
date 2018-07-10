@@ -135,6 +135,34 @@ public class Grapher {
 		return vals;
 	}
 	
+	public static double[][] contrastVals(double[][] vals) {	
+		double min = GenUtils.min(vals[0]);
+		for (int i = 0; i < vals.length; i++) {
+			if (GenUtils.min(vals[i]) < min) {
+				min = GenUtils.min(vals[i]);
+			}
+		}
+		System.out.println("Min: " + min);
+		
+		double max = GenUtils.max(vals[0]);
+		for (int i = 0; i < vals.length; i++) {
+			if (GenUtils.min(vals[i]) > max) {
+				max = GenUtils.min(vals[i]);
+			}
+		}
+		System.out.println("Max: " + max);
+		
+		double mult = 255.0 / (max - min);
+		
+		for (int i = 0; i < vals.length; i++) {
+			for (int j = 0; j < vals[i].length; j++) {
+				vals[i][j] = (vals[i][j] - min) * mult;
+			}
+		}
+		
+		return vals;
+	}
+	
 	public static BufferedImage drawGraph(double[] vals) {
 		BufferedImage graph = new BufferedImage(vals.length, 256, BufferedImage.TYPE_INT_RGB);
 		

@@ -1,7 +1,5 @@
 package manualDetection;
 
-import static org.junit.Assert.assertEquals;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -23,13 +21,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -75,11 +72,10 @@ public class ImageViewer {
 			img = ImageUtils.cutBottom(img);
 			img = ImageUtils.averageExposure(img);
 			img = ImageUtils.contrast(img);
-			//img = ImageUtils.contrastByRow(img);
 		}
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		scale = (screenSize.getHeight() / img.getHeight()) - .5;
+		scale = (screenSize.getHeight() / img.getHeight()) * .75;
 		
 		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(scale * img.getWidth()), (int)(scale * img.getHeight()),
 				BufferedImage.SCALE_SMOOTH));
@@ -95,6 +91,7 @@ public class ImageViewer {
 		imgDisplay.setVerticalAlignment(JLabel.TOP);
 		
 		JLabel status = new JLabel("Tubes: 0");
+		status.setHorizontalAlignment(JLabel.CENTER);
 		
 		JButton newRowButton = new JButton("New Row");
 		newRowButton.addActionListener(new ActionListener() {
@@ -123,27 +120,31 @@ public class ImageViewer {
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		if (count == files.length - 1) {
-	        		String[] newArgs = new String[3];
-	        		newArgs[0] = args[1] + lineCounts + linePos.size();
-	        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
-	        				* ((double)actualSize / width);
-	        		newArgs[1] = args[2] + sizeCounts + countedSize;
-	        		newArgs[2] = args[0];
-	        		frame.setVisible(false);
-	        		frame.dispose();
-	        		Results.main(newArgs);
+        		if (linePos.size() >= 2) {
+	        		if (count == files.length - 1) {
+		        		String[] newArgs = new String[3];
+		        		newArgs[0] = args[1] + lineCounts + linePos.size();
+		        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+		        				* ((double)actualSize / width);
+		        		newArgs[1] = args[2] + sizeCounts + countedSize;
+		        		newArgs[2] = args[0];
+		        		frame.setVisible(false);
+		        		frame.dispose();
+		        		Results.main(newArgs);
+	        		} else {
+	        			String[] newArgs = new String[4];
+	        			newArgs[0] = args[0];
+	        			newArgs[1] = args[1] + lineCounts + linePos.size() + ";";
+	        			double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
+		        				* ((double)actualSize / width);
+		        		newArgs[2] = args[2] + sizeCounts + countedSize + ";";
+		        		newArgs[3] = "" + (count + 1);
+		        		frame.setVisible(false);
+		        		frame.dispose();
+		        		ImageViewer.main(newArgs);
+	        		}
         		} else {
-        			String[] newArgs = new String[4];
-        			newArgs[0] = args[0];
-        			newArgs[1] = args[1] + lineCounts + linePos.size() + ";";
-        			double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
-	        				* ((double)actualSize / width);
-	        		newArgs[2] = args[2] + sizeCounts + countedSize + ";";
-	        		newArgs[3] = "" + (count + 1);
-	        		frame.setVisible(false);
-	        		frame.dispose();
-	        		ImageViewer.main(newArgs);
+        			JOptionPane.showMessageDialog(frame, "Every row must contain 2 or more lines.", "Error", JOptionPane.ERROR_MESSAGE);
         		}
         	}
         });
@@ -186,34 +187,36 @@ public class ImageViewer {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				Point position = imgDisplay.getMousePosition();
-				BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
-				Graphics2D g2d = cpy.createGraphics();
 				
-				if (imageStack.size() == 1) {
-					if (isAfm) {
-						g2d.setColor(Color.BLUE);
+				if (position != null) {
+					BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
+					Graphics2D g2d = cpy.createGraphics();
+					
+					if (imageStack.size() == 1) {
+						if (isAfm) {
+							g2d.setColor(Color.BLUE);
+						} else {
+							g2d.setColor(Color.ORANGE);
+						}
+						vertPos = (int)position.getY();
+						g2d.fillRect(0, vertPos - 3, cpy.getWidth(), 6);
 					} else {
-						g2d.setColor(Color.ORANGE);
+						if (isAfm) {
+							g2d.setColor(Color.GREEN);
+						} else {
+							g2d.setColor(Color.RED);
+						}
+						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
+						linePos.add((int)position.getX());
 					}
-					vertPos = (int)position.getY();
-					g2d.fillRect(0, vertPos - 3, cpy.getWidth(), 6);
-				} else {
-					if (isAfm) {
-						g2d.setColor(Color.GREEN);
-					} else {
-						g2d.setColor(Color.RED);
-					}
-					g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
-					linePos.add((int)position.getX());
-					//printLinePos(linePos);
+					imageStack.push(cpy);
+					
+					g2d.dispose();
+					
+					status.setText("Tubes: " + (imageStack.size() - 2));
+					
+					frame.getContentPane().revalidate();
 				}
-				imageStack.push(cpy);
-				
-				g2d.dispose();
-				
-				status.setText("Tubes: " + (imageStack.size() - 2));
-				
-				frame.getContentPane().revalidate();
 			}
 			
 			@Override
@@ -267,13 +270,9 @@ public class ImageViewer {
 					if (linePos.size() != 0) {
 						linePos.remove(linePos.size() - 1);
 					}
-					//printLinePos(linePos);
 					imgDisplay.setIcon(new ImageIcon(display));
+					status.setText("Tubes: " + linePos.size());
 				}
-				
-				/*if (arg0.getKeyCode() == KeyEvent.VK_SPACE) {
-					System.out.println(imageStack.size());
-				}*/
 			}
 
 			@Override
@@ -285,6 +284,7 @@ public class ImageViewer {
         
         JPanel bottom = new JPanel();
         bottom.setLayout(new GridLayout(1, 3, 0, 0));
+        bottom.setPreferredSize(new Dimension(display.getWidth(), 200));
         bottom.add(newRowButton);
         bottom.add(status);
         bottom.add(continueButton);
@@ -292,7 +292,7 @@ public class ImageViewer {
         
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
-        frame.setSize(display.getWidth(), display.getHeight() + 200);
+        frame.setSize(display.getWidth(), display.getHeight() + 250);
         
         ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/icons/icon.png"));
         frame.setIconImage(icon.getImage());
@@ -317,11 +317,4 @@ public class ImageViewer {
             }
         });
     }
-	
-	public void printLinePos(ArrayList<Integer> linePos) {
-		for (int i = 0; i < linePos.size(); i++) {
-			System.out.print(linePos.get(i) + ", ");
-		}
-		System.out.println();
-	}
 }

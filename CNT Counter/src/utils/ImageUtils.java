@@ -5,10 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorModel;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -417,7 +415,7 @@ public class ImageUtils {
 	}
 	
 	public static BufferedImage cutBottom(BufferedImage img) {
-		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight() - 64, img.TYPE_INT_RGB);
+		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight() - 64, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = cpy.createGraphics();
 		g2d.drawImage(img, 0, 0, null);
 		return cpy;
@@ -478,5 +476,64 @@ public class ImageUtils {
 		});
 		BufferedImageOp op = new ConvolveOp(kernel);
 		return op.filter(img, null);
+	}
+	
+	public static BufferedImage customSobel(BufferedImage img) {
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		double[][] resMatrix = new double[width][height];
+		
+		int count = 0;
+		for (int i = 1; i < width - 1; i++) {
+			for (int j = 1; j < height - 1; j++) {
+				Color neColor = new Color(img.getRGB(i + 1, j - 1));
+				Color eColor = new Color(img.getRGB(i + 1, j));
+				Color seColor = new Color(img.getRGB(i + 1, j + 1));
+				Color swColor = new Color(img.getRGB(i - 1, j + 1));
+				Color wColor = new Color(img.getRGB(i - 1, j));
+				Color nwColor = new Color(img.getRGB(i - 1, j - 1));
+				
+				int ne = neColor.getRed();
+				int e = eColor.getRed() * 2;
+				int se = seColor.getRed();
+				int sw = swColor.getRed() * -1;
+				int w = wColor.getRed() * -2;
+				int nw = nwColor.getRed() * -1;
+				
+				resMatrix[i][j] = ne + e + se + sw + w + nw;
+			}
+		}
+		
+		double min = GenUtils.min(resMatrix[0]);
+		for (int i = 0; i < resMatrix.length; i++) {
+			if (GenUtils.min(resMatrix[i]) < min) {
+				min = GenUtils.min(resMatrix[i]);
+			}
+		}
+		
+		double max = GenUtils.max(resMatrix[0]);
+		for (int i = 0; i < resMatrix.length; i++) {
+			if (GenUtils.max(resMatrix[i]) > max) {
+				max = GenUtils.max(resMatrix[i]);
+			}
+		}
+		
+		for (int i = 0; i < resMatrix.length; i++) {
+			for (int j = 0; j < resMatrix[i].length; j++) {
+				resMatrix[i][j] = (resMatrix[i][j] - min) * (255.0 / (max - min));
+			}
+		}
+		
+		Graphics2D g2d = result.createGraphics();
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				g2d.setColor(new Color((int)resMatrix[i][j], (int)resMatrix[i][j], (int)resMatrix[i][j]));
+				g2d.drawRect(i, j, 1, 1);
+			}
+		}
+		
+		return result;
 	}
 }

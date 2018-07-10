@@ -5,10 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import utils.AFMUtils;
 import utils.GenUtils;
 import utils.Grapher;
 import utils.ImageUtils;
@@ -16,7 +16,10 @@ import utils.ImageUtils;
 public class Tester {
 
 	public static void main(String[] args) {
-		BufferedImage img = ImageUtils.readImage("images/20170405_test3_35.jpg");
+		BufferedImage img = ImageUtils.readImage("images/JEOL4.jpg");
+		
+		img = AFMUtils.blackAndWhite(img);
+		
 		double actualSize = ImageUtils.actualSize(img);
 		img = ImageUtils.cutBottom(img);
 		//img = ImageUtils.averageExposure(img);
@@ -25,8 +28,14 @@ public class Tester {
 		//img = ImageUtils.contrastByRow(img);
 		
 		for (int i = 0; i < 5; i++) {
-			img = ImageUtils.gaussianBlur(img);
+			img = ImageUtils.medianFilter(img);
 		}
+		BufferedImage sobelTest = ImageUtils.customSobel(img);
+		
+		//sobelTest = ImageUtils.contrastByRow(sobelTest);
+		
+		try {ImageIO.write(sobelTest, "jpg", new File("images/test.jpg"));} catch (IOException e) {}
+
 		img = ImageUtils.sobel7(img);
 		
 		/*final int SIZE = 50;

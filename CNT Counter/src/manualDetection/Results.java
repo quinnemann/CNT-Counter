@@ -1,6 +1,6 @@
 package manualDetection;
 
-import java.awt.Desktop;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -11,7 +11,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.ImageIcon;
@@ -19,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -28,6 +28,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import utils.GenUtils;
 
 public class Results {
+	
+	JLabel densityLabel = new JLabel("<html><p><center>Please select a save file</center></p></html>");
 	private File file = null;
 	
 	 public Results(String[] args){
@@ -57,40 +59,55 @@ public class Results {
 					try {
 						pw = new PrintWriter(file);
 					} catch (FileNotFoundException e) {
-						e.printStackTrace();
+						JOptionPane.showMessageDialog(frame, "ERROR: File is being used by another program!", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 					
-					String files[] = args[2].split("\\?");
-					String tubesByFile[] = args[0].split(";");
-					String distancesByFile[] = args[1].split(";");
-					
-					pw.println("Filename,Row,Tubes,Distance,Density");
-					
-					for (int i = 0; i < files.length; i++) {
-						File file = new File(files[i]);
-						String tubes[] = tubesByFile[i].split(",");
-						String distances[] = distancesByFile[i].split(",");
-						for (int j = 0; j < tubes.length; j++) {
-							pw.println(file.getName() + "," + (j + 1) + "," + tubes[j] + "," + distances[j] + "," +
-									GenUtils.roundThousandths(Integer.parseInt(tubes[j]) / Double.parseDouble(distances[j])));
+					if (pw != null) {
+						String files[] = args[2].split("\\?");
+						String tubesByFile[] = args[0].split(";");
+						String distancesByFile[] = args[1].split(";");
+						
+						pw.println("Filename,Row,Tubes,Distance,Density");
+						
+						for (int i = 0; i < files.length; i++) {
+							File file = new File(files[i]);
+							String tubes[] = tubesByFile[i].split(",");
+							String distances[] = distancesByFile[i].split(",");
+							for (int j = 0; j < tubes.length; j++) {
+								pw.println(file.getName() + "," + (j + 1) + "," + tubes[j] + "," + distances[j] + "," +
+										GenUtils.roundThousandths(Integer.parseInt(tubes[j]) / Double.parseDouble(distances[j])));
+							}
 						}
+						
+						densityLabel.setForeground(new Color(18, 188, 0));
+						densityLabel.setText("Data Saved!");
+						pw.close();
+					} else {
+						file = null;
 					}
-					
-					pw.close();
 				}
 			});
 	        saveButton.setFocusable(false);
 	        
-	        JLabel densityLabel = new JLabel("<html>Density: " + "PLACEHOLDER" + " &micro;m<sup>-1</sup></html>");
 	        densityLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        
 	        JButton restart = new JButton("Restart");
 	        restart.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					frame.setVisible(false);
-					frame.dispose();
-					FileSelect.main(new String[0]);
+					if (file == null) {
+						int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart without saving your data?",
+								"Confirm Quit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (option == JOptionPane.YES_OPTION) {
+							frame.setVisible(false);
+							frame.dispose();
+							FileSelect.main(new String[0]);
+						}
+					} else {
+						frame.setVisible(false);
+						frame.dispose();
+						FileSelect.main(new String[0]);
+					}
 				}
 			});
 	        restart.setFocusable(false);
@@ -99,7 +116,15 @@ public class Results {
 	        quit.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					System.exit(0);
+					if (file == null) {
+						int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to quit without saving your data?",
+								"Confirm Quit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (option == JOptionPane.YES_OPTION) {
+							System.exit(0);
+						}
+					} else {
+						System.exit(0);
+					}
 				}
 			});
 	        quit.setFocusable(false);
@@ -115,7 +140,8 @@ public class Results {
 	            public void componentResized(ComponentEvent arg0) {
 	                int width = frame.getWidth();
 	                int height = frame.getHeight();
-	                FileSelect.defaultFont = new Font(FileSelect.defaultFont.getFontName(), FileSelect.defaultFont.getStyle(), (width + height) / 50);
+	                FileSelect.defaultFont = new Font(FileSelect.defaultFont.getFontName(),
+	                		FileSelect.defaultFont.getStyle(), (width + height) / 50);
 	                
 	                saveButton.setFont(FileSelect.defaultFont);
 	                densityLabel.setFont(FileSelect.defaultFont);
