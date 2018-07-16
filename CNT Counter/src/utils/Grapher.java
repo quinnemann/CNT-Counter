@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import dataStructures.Extremum;
+
 public class Grapher {
 	
 	public static double[] getGraph(BufferedImage img, int row, int size) {
@@ -209,5 +211,91 @@ public class Grapher {
 		}
 		
 		return max;
+	}
+	
+	public static int numPeaks(double[] vals, int diff) {
+		int count = 0;
+		
+		ArrayList<Extremum> extrema = new ArrayList<Extremum>();
+		for (int i = 0; i < vals.length; i++) {
+			if (i == 0) {
+				if (vals[i] > vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			} else if (i == vals.length - 1) {
+				if (vals[i] > vals[i - 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i - 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			} else {
+				if (vals[i] > vals[i - 1] && vals[i] > vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i - 1] && vals[i] < vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			}
+		}
+		
+		for (int i = 1; i < extrema.size() - 1; i++) {
+			if (extrema.get(i).isMax()) {
+				Extremum prev = extrema.get(i - 1);
+				Extremum curr = extrema.get(i);
+				Extremum next = extrema.get(i + 1);
+				if (!prev.isMax() && curr.getVal() - prev.getVal() > diff && !next.isMax() && curr.getVal() - next.getVal() > diff) {
+					count++;
+				}
+			}
+		}
+		
+		return count;
+	}
+
+	public static BufferedImage numPeaks(double[] vals, int diff, BufferedImage img) {
+		BufferedImage combo = ImageUtils.deepCopy(img);
+		Graphics2D g2d = combo.createGraphics();
+		g2d.setColor(Color.RED);
+		
+		int count = 0;
+		
+		ArrayList<Extremum> extrema = new ArrayList<Extremum>();
+		for (int i = 0; i < vals.length; i++) {
+			if (i == 0) {
+				if (vals[i] > vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			} else if (i == vals.length - 1) {
+				if (vals[i] > vals[i - 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i - 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			} else {
+				if (vals[i] > vals[i - 1] && vals[i] > vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], true, i));
+				} else if (vals[i] < vals[i - 1] && vals[i] < vals[i + 1]) {
+					extrema.add(new Extremum(vals[i], false, i));
+				}
+			}
+		}
+		
+		for (int i = 1; i < extrema.size() - 1; i++) {
+			if (extrema.get(i).isMax()) {
+				Extremum prev = extrema.get(i - 1);
+				Extremum curr = extrema.get(i);
+				Extremum next = extrema.get(i + 1);
+				if (!prev.isMax() && curr.getVal() - prev.getVal() > diff && !next.isMax() && curr.getVal() - next.getVal() > diff) {
+					count++;
+					g2d.fillRect(curr.getX() - 2, 470, 5, 20);
+					g2d.fillRect(curr.getX() - 2, (int)(combo.getHeight() - curr.getVal() - 5), 5, 10);
+				}
+			}
+		}
+		
+		return combo;
 	}
 }

@@ -536,4 +536,28 @@ public class ImageUtils {
 		
 		return result;
 	}
+	
+	public static BufferedImage manualThreshold(BufferedImage img, int threshold) {
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		Graphics2D g2d = result.createGraphics();
+		
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				Color c = new Color(img.getRGB(i, j));
+				if (c.getRed() > threshold) {
+					g2d.setColor(Color.WHITE);
+					g2d.fillRect(i, j, 1, 1);
+				} else {
+					g2d.setColor(Color.BLACK);
+					g2d.fillRect(i, j, 1, 1);
+				}
+			}
+		}
+		
+		return result;
+	}
 }
