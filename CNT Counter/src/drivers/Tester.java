@@ -16,61 +16,50 @@ import utils.ImageUtils;
 public class Tester {
 
 	public static void main(String[] args) {
-		BufferedImage img = ImageUtils.readImage("images/JEOL4.jpg");
+		BufferedImage img = ImageUtils.readImage("images/AFM1.tif");
 		
 		img = AFMUtils.blackAndWhite(img);
 		
-		double actualSize = ImageUtils.actualSize(img);
-		img = ImageUtils.cutBottom(img);
-		//img = ImageUtils.averageExposure(img);
-		//img = ImageUtils.contrast(img);
+		double actualSize = AFMUtils.actualSize(img);
+		img = AFMUtils.crop(img);
+		final int SCAN_SIZE = 10;
+		final int MIN_ANGLE = 45;
+		final int MAX_ANGLE = 135;
+		final int ANGLE_UNIT = 5;
 		
-		//img = ImageUtils.contrastByRow(img);
-		
-		/*BufferedImage sobelTest = ImageUtils.deepCopy(img);
-		for (int i = 0; i < 0; i++) {
-			sobelTest = ImageUtils.medianFilter(sobelTest);
-		}
-		sobelTest = ImageUtils.customSobel(sobelTest);
-		try {ImageIO.write(sobelTest, "jpg", new File("images/test.jpg"));} catch (IOException e) {}*/
-		
-		/*final int SIZE = 50;
-		double[] total = new double[img.getWidth()];
-		for (int i = 0; i < SIZE; i++) {
-			double[] arr = Grapher.getGraph(img, 300, SIZE);
-			for (int j = 0; j < arr.length; j++) {
-				total[j] += arr[j] / SIZE;
-			}
-		}
-		BufferedImage graph = Grapher.drawGraph(total);
-		BufferedImage combo = new BufferedImage(img.getWidth(), img.getHeight() + 256, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2d = combo.createGraphics();
-		g2d.drawImage(img, 0, 0, null);
-		g2d.drawImage(graph, 0, img.getHeight(), null);
-		try {
-			ImageIO.write(combo, "jpg", new File("images/graph.jpg"));
-		} catch (IOException e1) {}*/
-		
-		double[][] vals = new double[img.getHeight()][img.getWidth()];
-		for (int j = 0; j < vals.length; j++) {
-			for (int i = 0; i < vals[j].length; i++) {
-				double angle = Grapher.maxAngle(img, i, j, 5, 45, 135, 5);
-				vals[j][i] += GenUtils.average(Grapher.getAngledPixels(img, i, j, 5, angle));
-			}
+		int scanHeight = img.getHeight() / 4;
+		double[] vals1 = new double[img.getWidth()];
+		for (int i = 0; i < vals1.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
+			vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, angle));
 		}
 		
-		for (int j = 0; j < vals.length; j++) {
-			vals[j] = Grapher.contrastVals(vals[j]);
+		scanHeight *= 2;
+		double[] vals2 = new double[img.getWidth()];
+		for (int i = 0; i < vals2.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
+			vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, angle));
 		}
+		
+		scanHeight *= 1.5;
+		double[] vals3 = new double[img.getWidth()];
+		for (int i = 0; i < vals2.length; i++) {
+			double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
+			vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, angle));
+		}
+		
+		vals1 = Grapher.contrastVals(vals1);
+		vals2 = Grapher.contrastVals(vals2);
+		vals3 = Grapher.contrastVals(vals3);
 		
 		//20
-		for (int j = 0; j < vals.length; j++) {
-			for (int i = 0; i < 20; i++) {
-				vals[j] = avgVals(vals[j]);
-			}
+		for (int i = 0; i < 0; i++) {
+			vals1 = Grapher.avgVals(vals1);
+			vals2 = Grapher.avgVals(vals2);
+			vals3 = Grapher.avgVals(vals3);
 		}
 		
-		BufferedImage graph = Grapher.drawGraph(vals[vals.length / 2]);
+		BufferedImage graph = Grapher.drawGraph(vals3);
 		
 		BufferedImage combo = new BufferedImage(img.getWidth(), img.getHeight() + 256, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = combo.createGraphics();
@@ -78,32 +67,25 @@ public class Tester {
 		g2d.drawImage(graph, 0, img.getHeight(), null);
 		
 		g2d.setColor(Color.GREEN);
+		g2d.fillRect(0, (img.getHeight() / 4) - 1, img.getWidth(), 3);
 		g2d.fillRect(0, (img.getHeight() / 2) - 1, img.getWidth(), 3);
+		g2d.fillRect(0, ((img.getHeight() / 4) * 3) - 1, img.getWidth(), 3);
 		
-		combo = Grapher.numPeaks(vals[vals.length / 2], 15, combo);
+		final int MIN_PEAK = 3;
 		
-		int total = 0;
-		for (int j = 0; j < vals.length; j++) {
-			total+= Grapher.numPeaks(vals[j], 15); //15
-			System.out.println(Grapher.numPeaks(vals[j], 15) / actualSize);
-		}
-		double average = (double)total / vals.length;
+		combo = Grapher.numPeaks(vals1, MIN_PEAK, combo, img.getHeight() / 4, false);
+		combo = Grapher.numPeaks(vals2, MIN_PEAK, combo, img.getHeight() / 2, false);
+		combo = Grapher.numPeaks(vals3, MIN_PEAK, combo, (img.getHeight() / 4) * 3, true);
 		
-		System.out.println(average / actualSize);
+		double density1 = Grapher.numPeaks(vals1, MIN_PEAK) / actualSize;
+		double density2 = Grapher.numPeaks(vals2, MIN_PEAK) / actualSize;
+		double density3 = Grapher.numPeaks(vals3, MIN_PEAK) / actualSize;
+		
+		System.out.println(density1);
+		System.out.println(density2);
+		System.out.println(density3);
+		System.out.println((density1 + density2 + density3) / 3);
 		
 		try {ImageIO.write(combo, "jpg", new File("images/graph.jpg"));} catch (IOException e) {}
-	}
-	
-	public static double[] avgVals(double[] vals) {
-		double[] avg = new double[vals.length];
-		
-		avg[0] = vals[0];
-		avg[avg.length - 1] = vals[vals.length - 1];
-		
-		for (int i = 1; i < vals.length - 1; i++) {
-			avg[i] = (vals[i - 1] + vals[i] + vals [i + 1]) / 3;
-		}
-		
-		return avg;
 	}
 }

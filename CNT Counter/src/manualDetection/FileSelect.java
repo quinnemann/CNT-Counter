@@ -33,12 +33,12 @@ public class FileSelect {
     public FileSelect(){
     	JFrame frame = new JFrame();
     	
-        JButton fileButton = new JButton("Select File");
+        JButton fileButton = new JButton("Select Files");
         fileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
-				fc.setDialogTitle("Open Image");
+				fc.setDialogTitle("Open Images");
 				fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 				setFileChooserFont(fc.getComponents());
 				

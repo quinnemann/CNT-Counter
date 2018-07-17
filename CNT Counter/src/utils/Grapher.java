@@ -253,12 +253,10 @@ public class Grapher {
 		return count;
 	}
 
-	public static BufferedImage numPeaks(double[] vals, int diff, BufferedImage img) {
+	public static BufferedImage numPeaks(double[] vals, int diff, BufferedImage img, int height, boolean isGraphHeight) {
 		BufferedImage combo = ImageUtils.deepCopy(img);
 		Graphics2D g2d = combo.createGraphics();
 		g2d.setColor(Color.RED);
-		
-		int count = 0;
 		
 		ArrayList<Extremum> extrema = new ArrayList<Extremum>();
 		for (int i = 0; i < vals.length; i++) {
@@ -289,13 +287,27 @@ public class Grapher {
 				Extremum curr = extrema.get(i);
 				Extremum next = extrema.get(i + 1);
 				if (!prev.isMax() && curr.getVal() - prev.getVal() > diff && !next.isMax() && curr.getVal() - next.getVal() > diff) {
-					count++;
-					g2d.fillRect(curr.getX() - 2, 470, 5, 20);
-					g2d.fillRect(curr.getX() - 2, (int)(combo.getHeight() - curr.getVal() - 5), 5, 10);
+					g2d.fillRect(curr.getX() - 2, height - 10, 5, 20);
+					if (isGraphHeight) {
+						g2d.fillRect(curr.getX() - 2, (int)(combo.getHeight() - curr.getVal() - 5), 5, 10);
+					}
 				}
 			}
 		}
 		
 		return combo;
+	}
+	
+	public static double[] avgVals(double[] vals) {
+		double[] avg = new double[vals.length];
+		
+		avg[0] = vals[0];
+		avg[avg.length - 1] = vals[vals.length - 1];
+		
+		for (int i = 1; i < vals.length - 1; i++) {
+			avg[i] = (vals[i - 1] + vals[i] + vals [i + 1]) / 3;
+		}
+		
+		return avg;
 	}
 }
