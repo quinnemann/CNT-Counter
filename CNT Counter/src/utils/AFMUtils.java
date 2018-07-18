@@ -7,10 +7,6 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 
-import net.sourceforge.tess4j.ITesseract;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
-
 public class AFMUtils {
 	
 	public static BufferedImage blackAndWhite(BufferedImage img) {
@@ -38,16 +34,7 @@ public class AFMUtils {
 			count++;
 		}
 		
-		String result = null;
-		ITesseract instance = new Tesseract();
-	    try {
-			result = instance.doOCR(AFMUtils.sharpen(img.getSubimage(390, 543, 140, 30)));
-		} catch (TesseractException e) {
-			return -1;
-		}
-	    String[] results = result.split(" ");
-		
-		return 521.0 / count * (Double.parseDouble(results[0]) / 1000);
+		return 521.0 / count * (100.0 / 1000);
 	}
 	
 	public static BufferedImage crop(BufferedImage img) {

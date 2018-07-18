@@ -253,7 +253,7 @@ public class Grapher {
 		return count;
 	}
 
-	public static BufferedImage numPeaks(double[] vals, int diff, BufferedImage img, int height, boolean isGraphHeight) {
+	public static BufferedImage drawPeaks(double[] vals, int diff, BufferedImage img, int height, boolean isGraphHeight) {
 		BufferedImage combo = ImageUtils.deepCopy(img);
 		Graphics2D g2d = combo.createGraphics();
 		g2d.setColor(Color.RED);

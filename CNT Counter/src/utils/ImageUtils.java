@@ -485,7 +485,6 @@ public class ImageUtils {
 		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		double[][] resMatrix = new double[width][height];
 		
-		int count = 0;
 		for (int i = 1; i < width - 1; i++) {
 			for (int j = 1; j < height - 1; j++) {
 				Color neColor = new Color(img.getRGB(i + 1, j - 1));

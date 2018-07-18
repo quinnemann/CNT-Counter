@@ -166,7 +166,7 @@ public class Results {
 	        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	        int width = (int)screenSize.getWidth();
 	        int height = (int)screenSize.getHeight();
-	        frame.setSize(width / 4, height / 3);
+	        frame.setSize(width / 3, height / 2);
 	        
 	        ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/icons/icon.png"));
 	        frame.setIconImage(icon.getImage());
