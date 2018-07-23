@@ -4,19 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
+import java.util.Collections;
 
 public class TubeDetector {
 	
 	public static int detectTubes(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight();
-		
-		Graphics2D g2d = img.createGraphics();
-		g2d.setColor(Color.blue);
 		
 		ArrayList<Integer> tubesPerRow = new ArrayList<Integer>();
 		for (int i = 2; i < height - 2; i++) {
@@ -28,9 +23,6 @@ public class TubeDetector {
 				if (curr < 100) {
 					if (inTube > 0) {
 						tubes++;
-						if (tubesPerRow.size() == 600) {
-							g2d.fillRect(j - (inTube / 2), 0, 4, height);
-						}
 					}
 					inTube = 0;
 				} else {
@@ -39,42 +31,38 @@ public class TubeDetector {
 			}
 			tubesPerRow.add(tubes);
 		}
-		g2d.fillRect(0, 600, width, 5);
+		Collections.sort(tubesPerRow);
 		
-		return tubesPerRow.get((int) (tubesPerRow.size() * .75));
+		return tubesPerRow.get((int) (tubesPerRow.size() * .5));
 	}
 	
-	public static BufferedImage drawTubes(BufferedImage img) {
-		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight(), img.TYPE_INT_RGB);
-		Graphics2D g2d = cpy.createGraphics();
-		
+	public static BufferedImage drawTubes(BufferedImage original, BufferedImage img, int drawHeight) {
 		int width = img.getWidth();
 		int height = img.getHeight();
 		
-		g2d.setColor(Color.white);
+		BufferedImage cpy = ImageUtils.deepCopy(original);
+		Graphics2D g2d = cpy.createGraphics();
+		g2d.setColor(new Color(152, 0, 255));
+		g2d.fillRect(0, drawHeight - 2, width, 5);
 		
-		ArrayList<Integer> tubesPerRow = new ArrayList<Integer>();
-		for (int i = 2; i < height - 2; i++) {
-			int tubes = 0;
-			int inTube = 0;
-			for (int j = 1; j < width - 1; j++) {
-				Color current = new Color(img.getRGB(j, i));
-				int curr = current.getRed();
-				if (curr < 100) {
-					if (inTube > 4) {
-						tubes++;
-						g2d.fillRect(j - (inTube / 2) - 1, i - 7, 3, 15);
-					}
-					inTube = 0;
-				} else {
-					inTube++;
+		g2d.setColor(Color.BLUE);
+		int inTube = 0;
+		for (int j = 1; j < width - 1; j++) {
+			Color current = new Color(img.getRGB(j, drawHeight));
+			int curr = current.getRed();
+			if (curr < 100) {
+				if (inTube > 0) {
+					g2d.fillRect(j - (inTube / 2), drawHeight - 10, 4, 20);
 				}
+				inTube = 0;
+			} else {
+				inTube++;
 			}
-			tubesPerRow.add(tubes);
 		}
 		
 		return cpy;
 	}
+
 	
 	public static double density(File file, int strength) {
 		BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());

@@ -80,21 +80,27 @@ public class AFMUI {
 					errorLabel.setText("No File Selected");
 				} else {
 					BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
+					BufferedImage original = ImageUtils.deepCopy(img);
 					img = AFMUtils.blackAndWhite(img);
 					double size = AFMUtils.actualSize(img);
+					
 					img = AFMUtils.crop(img);
-					String imageName = file.getName();
-					imageName = "images/" + imageName.substring(0, imageName.length() - 4);
-					try {
-						ImageIO.write(img, "jpg", new File(imageName + "out1.jpg"));
-					} catch (IOException e) {}
+					original = AFMUtils.crop(original);
+					
 					img = ImageUtils.medianFilter(img);
 					img = AFMUtils.sharpen(img);
 					img = ImageUtils.contrastByRow(img);
-					try {
-						ImageIO.write(img, "jpg", new File(imageName + "out2.jpg"));
-					} catch (IOException e) {}
 					double density = TubeDetector.detectTubes(img) / size;
+					
+					original = TubeDetector.drawTubes(original, img, original.getHeight() / 4);
+					original = TubeDetector.drawTubes(original, img, original.getHeight() / 2);
+					original = TubeDetector.drawTubes(original, img, (original.getHeight() / 4) * 3);
+					String imageName = file.getName();
+					imageName = "images/" + imageName.substring(0, imageName.length() - 4);
+					try {
+						ImageIO.write(original, "jpg", new File(imageName + "out.jpg"));
+					} catch (IOException e) {}
+					
 					errorLabel.setForeground(new Color(0, 153, 0));
 					errorLabel.setText("<html>Density: " + GenUtils.roundThousandths(density) + " &micro;m<sup>-1</sup></html>");
 				}

@@ -127,36 +127,29 @@ public class AutoSEM{
 							img = ImageUtils.cutBottom(img);
 							
 							final int SCAN_SIZE = 50;
-							final int MIN_ANGLE = 90;
-							final int MAX_ANGLE = 90;
-							final int ANGLE_UNIT = 5;
 							
 							int scanHeight = img.getHeight() / 4;
 							double[] vals1 = new double[img.getWidth()];
 							for (int i = 0; i < vals1.length; i++) {
-								//double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
 								vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
 							}
 							
 							scanHeight *= 2;
 							double[] vals2 = new double[img.getWidth()];
 							for (int i = 0; i < vals2.length; i++) {
-								double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
-								vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, angle));
+								vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
 							}
 							
 							scanHeight *= 1.5;
 							double[] vals3 = new double[img.getWidth()];
 							for (int i = 0; i < vals2.length; i++) {
-								double angle = Grapher.maxAngle(img, i, scanHeight, SCAN_SIZE, MIN_ANGLE, MAX_ANGLE, ANGLE_UNIT);
-								vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, angle));
+								vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
 							}
 							
 							vals1 = Grapher.contrastVals(vals1);
 							vals2 = Grapher.contrastVals(vals2);
 							vals3 = Grapher.contrastVals(vals3);
 							
-							//20
 							for (int i = 0; i < 15; i++) {
 								vals1 = Grapher.avgVals(vals1);
 								vals2 = Grapher.avgVals(vals2);
@@ -190,7 +183,6 @@ public class AutoSEM{
 							densityData[f][2] = density3;
 							
 							String fileName = files[f].getName();
-							//System.out.println(fileName + ": " + (density1 + density2 + density3) / 3);
 							fileName = fileName.substring(0, fileName.length() - 4);
 							if (saveCountImages.isSelected()) {
 								File folder = new File(saveFile.getParent() + "/counts");
