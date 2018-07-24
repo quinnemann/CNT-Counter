@@ -3,7 +3,6 @@ package utils;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -38,7 +37,6 @@ public class TubeDetector {
 	
 	public static BufferedImage drawTubes(BufferedImage original, BufferedImage img, int drawHeight) {
 		int width = img.getWidth();
-		int height = img.getHeight();
 		
 		BufferedImage cpy = ImageUtils.deepCopy(original);
 		Graphics2D g2d = cpy.createGraphics();
@@ -62,60 +60,4 @@ public class TubeDetector {
 		
 		return cpy;
 	}
-
-	
-	public static double density(File file, int strength) {
-		BufferedImage img = ImageUtils.readImage(file.getAbsolutePath());
-		
-		double size = ImageUtils.actualSize(img);
-		
-		//enhance image
-		img = ImageUtils.cutBottom(img);
-		
-		
-		//reduce noise
-		for (int i = 0; i < strength; i++) {
-			img = ImageUtils.gaussianBlur(img);
-		}
-		img = ImageUtils.sobel7(img);
-		/*try {
-			ImageIO.write(img, "jpg", new File(file.getParent() + "//output1.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		/*img = TubeDetector.drawTubes(img);
-		try {
-			ImageIO.write(img, "jpg", new File(file.getParent() + "//output2.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		//edge detection
-		CannyEdgeDetector detector = new CannyEdgeDetector();
-		detector.setSourceImage(img);
-		detector.setLowThreshold(2f);
-		detector.setHighThreshold(5f);
-		detector.setGaussianKernelRadius(3f);
-		detector.process();
-		BufferedImage edges = detector.getEdgesImage();
-		/*try {
-			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output2.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		int tubes = TubeDetector.detectTubes(edges);
-		
-		/*try {
-			ImageIO.write(edges, "jpg", new File(file.getParent() + "//output3.jpg"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		return tubes / size;
-    }
 }

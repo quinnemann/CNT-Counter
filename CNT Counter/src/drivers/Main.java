@@ -24,6 +24,7 @@ public class Main {
     public Main(){
     	JFrame frame = new JFrame();
     	
+    	//Create button that opens the automatic counter
         JButton autoButton = new JButton("Automatic Counter");
         autoButton.addActionListener(new ActionListener() {
 			@Override
@@ -36,6 +37,7 @@ public class Main {
 		});
         autoButton.setFocusable(false);
         
+        //Create button that opens the manual counter
         JButton manButton = new JButton("Manual Counter");
         manButton.addActionListener(new ActionListener() {
 			@Override
@@ -58,6 +60,7 @@ public class Main {
             public void componentMoved(ComponentEvent arg0) {
             }
 
+            //change font whenever the window is resized
             @Override
             public void componentResized(ComponentEvent arg0) {
                 int width = frame.getWidth();
@@ -76,12 +79,14 @@ public class Main {
             }
         });
 
+        //add components to window
         frame.getContentPane().setLayout(new GridLayout(1, 2, 0, 50));
         frame.getContentPane().add(autoButton);
         frame.getContentPane().add(manButton);
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
+        //set window size
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int)screenSize.getWidth();
         int height = (int)screenSize.getHeight();

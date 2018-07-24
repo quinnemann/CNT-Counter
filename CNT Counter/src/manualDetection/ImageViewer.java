@@ -48,59 +48,71 @@ public class ImageViewer {
 	private boolean isAfm = false;
 	
 	public ImageViewer(String[] args) {
+		//get files
 		String[] files = args[0].split("\\?");
 		
+		//get current iteration
 		int count = Integer.parseInt(args[3]);
 		
 		JFrame frame = new JFrame();
 		frame.setLayout(new GridLayout(1, 2, 0, 0));
 		
+		//create a stack of images used for undo feature
 		imageStack = new ImageStack();
 		
+		//get image for current iteration
 		BufferedImage img = ImageUtils.readImage(files[count]);
 		
+		//detect difference between AFM and SEM images
 		if (img.getWidth() < 1000) {
 			isAfm = true;
 		}
 		
-		if (isAfm) {
+		if (isAfm) { //get size, crop AFM image
 			actualSize = AFMUtils.actualSize(img);
 			img = AFMUtils.crop(img);
 			img = img.getSubimage(0, 0, img.getWidth(), img.getHeight());
-		} else {
+		} else {//get size, crop, enhance SEM image
 			actualSize = ImageUtils.actualSize(img);
 			img = ImageUtils.cutBottom(img);
 			img = ImageUtils.averageExposure(img);
 			img = ImageUtils.contrast(img);
 		}
 		
+		//scale image to 3/4 screen height
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		scale = (screenSize.getHeight() / img.getHeight()) * .75;
-		
 		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(scale * img.getWidth()), (int)(scale * img.getHeight()),
 				BufferedImage.SCALE_SMOOTH));
 		
+		//initialize display using new image
 		imageStack.push(img);
 		display = img;
 		int width = img.getWidth();
 		
+		//create array used to store x coordinates of lines
 		ArrayList<Integer> linePos = new ArrayList<Integer>();
 
+		//create the image display
 		JLabel imgDisplay = new JLabel(new ImageIcon(display));
 		imgDisplay.setHorizontalAlignment(JLabel.LEFT);
 		imgDisplay.setVerticalAlignment(JLabel.TOP);
 		
+		//create the status label
 		JLabel status = new JLabel("Tubes: 0");
 		status.setHorizontalAlignment(JLabel.CENTER);
 		
+		//create button to make a new row
 		JButton newRowButton = new JButton("New Row");
 		newRowButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		if (linePos.size() > 1) {
-	        		lineCounts += linePos.size() + ",";
+        		if (linePos.size() > 1) { //every line must have a minimum of 2 tubes
+	        		lineCounts += linePos.size() + ","; //save number of lines
 	        		sizeCounts += (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
-	        				* ((double)actualSize / width) + ",";
+	        				* ((double)actualSize / width) + ","; //save distance counted
+	        		
+	        		//reset data
 	        		linePos.clear();
 	        		BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
 	        		imageStack = new ImageStack();
@@ -111,7 +123,9 @@ public class ImageViewer {
         });
 		newRowButton.setFocusable(false);
         
+		//create continue button
         JButton continueButton = new JButton("");
+        //change text if file is the last one to view
         if (count == files.length - 1) {
         	continueButton.setText("Continue");
         } else {
@@ -120,25 +134,33 @@ public class ImageViewer {
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		if (linePos.size() >= 2) {
-	        		if (count == files.length - 1) {
+        		if (linePos.size() >= 2) { //make sure line contains 2 or more tubes
+	        		if (count == files.length - 1) { //if this is the last file
 		        		String[] newArgs = new String[3];
-		        		newArgs[0] = args[1] + lineCounts + linePos.size();
+		        		newArgs[0] = args[1] + lineCounts + linePos.size(); //add the line count data
+		        		
+		        		//add the size data
 		        		double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
 		        				* ((double)actualSize / width);
 		        		newArgs[1] = args[2] + sizeCounts + countedSize;
+		        		
+		        		//pass the list of files
 		        		newArgs[2] = args[0];
+		        		
+		        		//go to results ui
 		        		frame.setVisible(false);
 		        		frame.dispose();
 		        		Results.main(newArgs);
-	        		} else {
+	        		} else { //if there are still more images to count
 	        			String[] newArgs = new String[4];
-	        			newArgs[0] = args[0];
-	        			newArgs[1] = args[1] + lineCounts + linePos.size() + ";";
+	        			newArgs[0] = args[0]; //pass the list of files
+	        			newArgs[1] = args[1] + lineCounts + linePos.size() + ";"; //add the line count data
 	        			double countedSize = (GenUtils.max(linePos) - GenUtils.min(linePos) + GenUtils.averageDiff(linePos))
 		        				* ((double)actualSize / width);
-		        		newArgs[2] = args[2] + sizeCounts + countedSize + ";";
-		        		newArgs[3] = "" + (count + 1);
+		        		newArgs[2] = args[2] + sizeCounts + countedSize + ";"; //add the size data
+		        		newArgs[3] = "" + (count + 1); //move to next file
+		        		
+		        		//call next image
 		        		frame.setVisible(false);
 		        		frame.dispose();
 		        		ImageViewer.main(newArgs);
@@ -158,7 +180,7 @@ public class ImageViewer {
             public void componentMoved(ComponentEvent arg0) {}
 
             @Override
-            public void componentResized(ComponentEvent arg0) {
+            public void componentResized(ComponentEvent arg0) {//set font size relative to window size
                 int width = frame.getWidth();
                 int height = frame.getHeight();
                 FileSelect.defaultFont = new Font(FileSelect.defaultFont.getFontName(), FileSelect.defaultFont.getStyle(), (width + height) / 50);
@@ -185,37 +207,37 @@ public class ImageViewer {
 			public void mouseExited(MouseEvent e) {}
 			
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mousePressed(MouseEvent e) { //when mouse is clicked on image
 				Point position = imgDisplay.getMousePosition();
 				
-				if (position != null) {
+				if (position != null) { //if mouse is within image
+					//draw on image
 					BufferedImage cpy = ImageUtils.deepCopy(imageStack.peek());
 					Graphics2D g2d = cpy.createGraphics();
 					
-					if (imageStack.size() == 1) {
+					if (imageStack.size() == 1) { //if selecting row
 						if (isAfm) {
 							g2d.setColor(Color.BLUE);
 						} else {
 							g2d.setColor(Color.ORANGE);
 						}
 						vertPos = (int)position.getY();
-						g2d.fillRect(0, vertPos - 3, cpy.getWidth(), 6);
-					} else {
+						g2d.fillRect(0, vertPos - 3, cpy.getWidth(), 6); //draw the row
+					} else { //if selecting lines
 						if (isAfm) {
 							g2d.setColor(Color.GREEN);
 						} else {
 							g2d.setColor(Color.RED);
 						}
-						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
-						linePos.add((int)position.getX());
+						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100); //draw the tube
+						linePos.add((int)position.getX()); //save the tube data
 					}
+					
+					//update display
 					imageStack.push(cpy);
-					
-					g2d.dispose();
-					
 					status.setText("Tubes: " + (imageStack.size() - 2));
-					
 					frame.getContentPane().revalidate();
+					g2d.dispose();
 				}
 			}
 			
@@ -228,33 +250,36 @@ public class ImageViewer {
 			public void mouseDragged(MouseEvent arg0) {}
 			
 			@Override
-			public void mouseMoved(MouseEvent arg0) {
+			public void mouseMoved(MouseEvent arg0) {//whenever the mouse is moved within the frame
 				Point position = imgDisplay.getMousePosition();
+				
+				//draw on display
 				display = ImageUtils.deepCopy(imageStack.peek());
 				Graphics2D g2d = display.createGraphics();
-				if (imageStack.size() == 1) {
+				if (imageStack.size() == 1) {//if selecting row
 					try {
 						if (isAfm) {
 							g2d.setColor(Color.BLUE);
 						} else {
 							g2d.setColor(Color.ORANGE);
 						}
-						g2d.fillRect(0, (int)position.getY() - 3, display.getWidth(), 6);
+						g2d.fillRect(0, (int)position.getY() - 3, display.getWidth(), 6);//draw row
 					} catch (Exception e) {}
-				} else {
+				} else {//if selecting tube
 					try {
 						if (isAfm) {
 							g2d.setColor(Color.GREEN);
 						} else {
 							g2d.setColor(Color.RED);
 						}
-						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);
+						g2d.fillRect((int)position.getX() - 3, vertPos - 50, 6, 100);//draw tube
 					} catch (Exception e) {};
 				}
-				imgDisplay.setIcon(new ImageIcon(display));
 				
-				g2d.dispose();
+				//update display
+				imgDisplay.setIcon(new ImageIcon(display));
 				frame.getContentPane().revalidate();
+				g2d.dispose();
 			}
         });
         
@@ -264,7 +289,9 @@ public class ImageViewer {
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				if (imageStack.size() > 1 && arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+				if (imageStack.size() > 1 && arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) { //if backspace is pressed while selecting tube
+					
+					//remove last tube and update display
 					imageStack.pop();
 					display = imageStack.peek();
 					if (linePos.size() != 0) {
@@ -282,12 +309,15 @@ public class ImageViewer {
         frame.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         frame.getContentPane().add(imgDisplay);
         
+        //create grid for bottom of window
         JPanel bottom = new JPanel();
         bottom.setLayout(new GridLayout(1, 3, 0, 0));
         bottom.setPreferredSize(new Dimension(display.getWidth(), 200));
         bottom.add(newRowButton);
         bottom.add(status);
         bottom.add(continueButton);
+        
+        //add grid
         frame.getContentPane().add(bottom);
         
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

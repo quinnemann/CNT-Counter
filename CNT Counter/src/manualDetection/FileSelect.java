@@ -33,15 +33,18 @@ public class FileSelect {
     public FileSelect(){
     	JFrame frame = new JFrame();
     	
+    	//create file select button
         JButton fileButton = new JButton("Select Files");
         fileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				JFileChooser fc = new JFileChooser("C:\\Users\\quinn\\Documents\\git\\CNT Counter\\images");
+				//open file select
+				JFileChooser fc = new JFileChooser();
 				fc.setDialogTitle("Open Images");
 				fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 				setFileChooserFont(fc.getComponents());
 				
+				//select multiple jpg and tiff files
 				fc.setAcceptAllFileFilterUsed(false);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("JPEG and TIFF images", "jpg", "JPG", "jpeg", "JPEG", "tif", "TIF"
 						, "tiff", "TIFF");
@@ -50,6 +53,7 @@ public class FileSelect {
 				
 				int returnValue = fc.showOpenDialog(frame);
 
+				//get files and update label
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					files = fc.getSelectedFiles();
 					if (files.length == 1) {
@@ -65,15 +69,18 @@ public class FileSelect {
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
+        //create continue button
         JButton continueButton = new JButton("Continue");
         continueButton.addActionListener(new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent event) {
-        		if (files == null) {
+        		if (files == null) { //if files are not selectd
         			errorLabel.setForeground(Color.red);
         			errorLabel.setText("No Files Selected");
         		} else {
         			String[] args = new String[4];
+        			
+        			//pass files as text separated by "?"
         			args[0] = "";
         			for (int i = 0 ; i < files.length; i++) {
         				if (i == files.length - 1) {
@@ -82,9 +89,13 @@ public class FileSelect {
         					args[0] += files[i].getAbsolutePath() + "?";
         				}
         			}
+        			
+        			//blank data for first iteration of the image viewer
         			args[1] = "";
         			args[2] = "";
         			args[3] = "0";
+        			
+        			//open image viewer ui
         			frame.setVisible(false);
         			frame.dispose();
         			ImageViewer.main(args);
@@ -103,7 +114,7 @@ public class FileSelect {
             public void componentMoved(ComponentEvent arg0) {}
 
             @Override
-            public void componentResized(ComponentEvent arg0) {
+            public void componentResized(ComponentEvent arg0) { //change font if window is resized
                 int width = frame.getWidth();
                 int height = frame.getHeight();
                 defaultFont = new Font(defaultFont.getFontName(), defaultFont.getStyle(), (width + height) / 50);
@@ -120,6 +131,7 @@ public class FileSelect {
             public void componentShown(ComponentEvent e) {}
         });
 
+        //add components to window
         frame.getContentPane().setLayout(new GridLayout(2, 2, 0, 50));
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
@@ -137,7 +149,7 @@ public class FileSelect {
         frame.setIconImage(icon.getImage());
         
         frame.setLocationRelativeTo(null);
-        frame.setTitle("CNT Counter");
+        frame.setTitle("Manual Counter");
         frame.setVisible(true);
     }
 
@@ -155,6 +167,7 @@ public class FileSelect {
         });
     }
     
+    //makes font readable on larger screens
     public static void setFileChooserFont(Component[] comp)
     {  
       for(int x = 0; x < comp.length; x++)  

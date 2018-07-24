@@ -204,125 +204,6 @@ public class ImageUtils {
 		return (int)GenUtils.min(pixels);
 	}
 	
-	//unused function that reduces noise by removing individual pixels
-	/*public static BufferedImage noiseReduction(BufferedImage img) {
-		BufferedImage cpy = deepCopy(img);
-		
-		int width = cpy.getWidth();
-		int height = cpy.getHeight();
-		Color blk = new Color(0, 0, 0);
-		Color wht = new Color(255, 255, 255);
-		
-		for (int i = 1; i < width - 1; i++) {
-			for (int j = 1; j < height - 65; j++) {
-				if (pixelIsWhtIsland(i, j, cpy))
-					cpy.setRGB(i, j, blk.getRGB());
-				if (pixelIsBlkIsland(i, j, cpy))
-					cpy.setRGB(i, j, wht.getRGB());
-			}
-		}
-		
-		return cpy;
-	}*/
-	
-	//tests if a white pixel is individual
-	public static boolean pixelIsWhtIsland(int x, int y, BufferedImage img) {
-		Color c = new Color(img.getRGB(x, y));
-		Color nColor = new Color(img.getRGB(x, y - 1));
-		Color eColor = new Color(img.getRGB(x + 1, y));
-		Color wColor = new Color(img.getRGB(x - 1, y));
-		Color sColor = new Color(img.getRGB(x, y + 1));
-		
-		int color = c.getRed();
-		int n = nColor.getRed();
-		int e = eColor.getRed();
-		int w = wColor.getRed();
-		int s = sColor.getRed();
-		
-		if (color > 100 && n < 100 && e < 100 && w < 100 && s < 100)
-			return true;
-		return false;
-	}
-	
-	//tests if a white pixel is almost individual
-	public static boolean pixelIsWhtIslandStrong(int x, int y, BufferedImage img) {
-		Color c = new Color(img.getRGB(x, y));
-		Color nColor = new Color(img.getRGB(x, y - 1));
-		Color eColor = new Color(img.getRGB(x + 1, y));
-		Color wColor = new Color(img.getRGB(x - 1, y));
-		Color sColor = new Color(img.getRGB(x, y + 1));
-		
-		int color = c.getRed();
-		int n = nColor.getRed();
-		int e = eColor.getRed();
-		int w = wColor.getRed();
-		int s = sColor.getRed();
-		
-		if (color > 100 && ((n < 100 && e < 100 && w < 100 && s < 100) || (e < 100 && w < 100 && s < 100) || (n < 100 && w < 100 && s < 100) || (n < 100 && e < 100 && s < 100) || (n < 100 && e < 100 && w < 100)))
-			return true;
-		return false;
-	}
-	
-	//tests if black pixel is individual
-	public static boolean pixelIsBlkIsland(int x, int y, BufferedImage img) {
-		Color c = new Color(img.getRGB(x, y));
-		Color nColor = new Color(img.getRGB(x, y - 1));
-		Color eColor = new Color(img.getRGB(x + 1, y));
-		Color wColor = new Color(img.getRGB(x - 1, y));
-		Color sColor = new Color(img.getRGB(x, y + 1));
-		
-		int color = c.getRed();
-		int n = nColor.getRed();
-		int e = eColor.getRed();
-		int w = wColor.getRed();
-		int s = sColor.getRed();
-		
-		if (color < 100 && n > 100 && e > 100 && w > 100 && s > 100)
-			return true;
-		return false;
-	}
-	
-	//tests if black pixel is almost individual
-	public static boolean pixelIsBlkIslandStrong(int x, int y, BufferedImage img) {
-		Color c = new Color(img.getRGB(x, y));
-		Color nColor = new Color(img.getRGB(x, y - 1));
-		Color eColor = new Color(img.getRGB(x + 1, y));
-		Color wColor = new Color(img.getRGB(x - 1, y));
-		Color sColor = new Color(img.getRGB(x, y + 1));
-		
-		int color = c.getRed();
-		int n = nColor.getRed();
-		int e = eColor.getRed();
-		int w = wColor.getRed();
-		int s = sColor.getRed();
-		
-		if (color < 100 && ((n > 100 && e > 100 && w > 100 && s > 100) || (e > 100 && w > 100 && s > 100) || (n > 100 && w > 100 && s > 100) || (n > 100 && e > 100 && s > 100) || (n > 100 && e > 100 && w > 100)))
-			return true;
-		return false;
-	}
-	
-	//prints the minimum, maximum, and average pixel value
-	public static void pixelInfo(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight() - 64;
-		
-		int pixels[] = new int[width * height];
-		int pixelCount = 0;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
-				Color c = new Color(img.getRGB(i, j));
-				pixels[pixelCount] = c.getRed();
-				pixelCount++;
-			}
-		}
-		
-		int min = GenUtils.min(pixels);
-		int max = GenUtils.max(pixels);
-		int average = (int)GenUtils.average(pixels);
-		
-		System.out.println("Min: " + min + ", Max: " + max + ", Average: " + average);
-	}
-	
 	//more advanced noise reduction algorithm
 	//TODO: revert stronger filter changes
 	public static BufferedImage medianFilter(BufferedImage img) {
@@ -389,31 +270,6 @@ public class ImageUtils {
 		return (pixels.get(3) + pixels.get(2)) / 2;
 	}
 	
-	//UNUSED, gets the average of a pixel's neighbors
-	public static int averageOfPixels(BufferedImage img, int x, int y) {
-		ArrayList<Integer> pixels = new ArrayList<Integer>();
-		
-		Color n = new Color(img.getRGB(x, y-1));
-		Color ne = new Color(img.getRGB(x+1, y-1));
-		Color e = new Color(img.getRGB(x+1, y));
-		Color se = new Color(img.getRGB(x+1, y+1));
-		Color s = new Color(img.getRGB(x, y+1));
-		Color sw = new Color(img.getRGB(x-1, y+1));
-		Color w = new Color(img.getRGB(x-1, y));
-		Color nw = new Color(img.getRGB(x-1, y-1));
-		
-		pixels.add(n.getRed());
-		pixels.add(ne.getRed());
-		pixels.add(e.getRed());
-		pixels.add(se.getRed());
-		pixels.add(s.getRed());
-		pixels.add(sw.getRed());
-		pixels.add(w.getRed());
-		pixels.add(nw.getRed());
-		
-		return (int)GenUtils.average(pixels);
-	}
-	
 	public static BufferedImage cutBottom(BufferedImage img) {
 		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight() - 64, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = cpy.createGraphics();
@@ -454,6 +310,7 @@ public class ImageUtils {
 		    return op.filter(img, null);
 	}
 	
+	//3x3 sobel filter
 	public static BufferedImage sobel3(BufferedImage img) {
 		Kernel kernel = new Kernel(3, 3, new float[]{
 				-1f, 0f, 1f,
@@ -464,6 +321,7 @@ public class ImageUtils {
 		return op.filter(img, null);
 	}
 	
+	//7x7 sobel filter
 	public static BufferedImage sobel7(BufferedImage img) {
 		Kernel kernel = new Kernel(7, 7, new float[]{
 				0f, -1f, -2f, 0f, 2f, 1f, 0f,
@@ -478,6 +336,7 @@ public class ImageUtils {
 		return op.filter(img, null);
 	}
 	
+	//completely custom sobel filter
 	public static BufferedImage customSobel(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight();
@@ -536,6 +395,7 @@ public class ImageUtils {
 		return result;
 	}
 	
+	//threshold an image manually
 	public static BufferedImage manualThreshold(BufferedImage img, int threshold) {
 		int width = img.getWidth();
 		int height = img.getHeight();
