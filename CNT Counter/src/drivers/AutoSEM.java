@@ -36,6 +36,7 @@ import utils.AFMUtils;
 import utils.GenUtils;
 import utils.Grapher;
 import utils.ImageUtils;
+import utils.TubeDetector;
 
 public class AutoSEM{
 	
@@ -129,80 +130,103 @@ public class AutoSEM{
 						for (int f = 0; f < files.length; f++) {
 							//read file and filter it to black and white
 							BufferedImage img = ImageUtils.readImage(files[f].getAbsolutePath());
+							BufferedImage original = ImageUtils.deepCopy(img);
 							img = AFMUtils.blackAndWhite(img);
+							BufferedImage combo;
 							
-							//get the actual size and cut the bottom off
-							double actualSize = ImageUtils.actualSize(img);
-							img = ImageUtils.cutBottom(img);
-							
-							//total number of pixels to look at per column
-							final int SCAN_SIZE = 50;
-							
-							//get data for top row
-							int scanHeight = img.getHeight() / 4;
-							double[] vals1 = new double[img.getWidth()];
-							for (int i = 0; i < vals1.length; i++) {
-								vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
+							if (img.getWidth() >= 1000) {
+								//get the actual size and cut the bottom off
+								double actualSize = ImageUtils.actualSize(img);
+								img = ImageUtils.cutBottom(img);
+								
+								//total number of pixels to look at per column
+								final int SCAN_SIZE = 50;
+								
+								//get data for top row
+								int scanHeight = img.getHeight() / 4;
+								double[] vals1 = new double[img.getWidth()];
+								for (int i = 0; i < vals1.length; i++) {
+									vals1[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
+								}
+								
+								//get data for middle row
+								scanHeight *= 2;
+								double[] vals2 = new double[img.getWidth()];
+								for (int i = 0; i < vals2.length; i++) {
+									vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
+								}
+								
+								//get data for bottom row
+								scanHeight *= 1.5;
+								double[] vals3 = new double[img.getWidth()];
+								for (int i = 0; i < vals2.length; i++) {
+									vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
+								}
+								
+								//represent data from 0 min to 255 max
+								vals1 = Grapher.contrastVals(vals1);
+								vals2 = Grapher.contrastVals(vals2);
+								vals3 = Grapher.contrastVals(vals3);
+								
+								//smoothing
+								for (int i = 0; i < 15; i++) {
+									vals1 = Grapher.avgVals(vals1);
+									vals2 = Grapher.avgVals(vals2);
+									vals3 = Grapher.avgVals(vals3);
+								}
+								
+								//create graph of middle row
+								BufferedImage graph = Grapher.drawGraph(vals2);
+								
+								//original image on top and graph on bottom
+								combo = new BufferedImage(img.getWidth(), img.getHeight() + 256, BufferedImage.TYPE_INT_RGB);
+								Graphics2D g2d = combo.createGraphics();
+								g2d.drawImage(img, 0, 0, null);
+								g2d.drawImage(graph, 0, img.getHeight(), null);
+								
+								//create horizontal lines
+								g2d.setColor(Color.GREEN);
+								g2d.fillRect(0, (img.getHeight() / 4) - 1, img.getWidth(), 3);
+								g2d.fillRect(0, (img.getHeight() / 2) - 1, img.getWidth(), 3);
+								g2d.fillRect(0, ((img.getHeight() / 4) * 3) - 1, img.getWidth(), 3);
+								
+								//minimum sized peak to accept as valid
+								final int MIN_PEAK = 3;
+								
+								//draw lines
+								combo = Grapher.drawPeaks(vals1, MIN_PEAK, combo, img.getHeight() / 4, false);
+								combo = Grapher.drawPeaks(vals2, MIN_PEAK, combo, img.getHeight() / 2, true);
+								combo = Grapher.drawPeaks(vals3, MIN_PEAK, combo, (img.getHeight() / 4) * 3, false);
+								
+								//get the number of peaks per row
+								double density1 = GenUtils.roundThousandths(Grapher.numPeaks(vals1, MIN_PEAK) / actualSize);
+								double density2 = GenUtils.roundThousandths(Grapher.numPeaks(vals2, MIN_PEAK) / actualSize);
+								double density3 = GenUtils.roundThousandths(Grapher.numPeaks(vals3, MIN_PEAK) / actualSize);
+								
+								//save data
+								densityData[f][0] = density1;
+								densityData[f][1] = density2;
+								densityData[f][2] = density3;
+							} else {
+								double size = AFMUtils.actualSize(img);
+								
+								img = AFMUtils.crop(img);
+								original = AFMUtils.crop(original);
+								
+								img = ImageUtils.medianFilter(img);
+								img = AFMUtils.sharpen(img);
+								img = ImageUtils.contrastByRow(img);
+								
+								double density = GenUtils.roundThousandths(TubeDetector.detectTubes(img) / size);
+								
+								densityData[f][0] = density;
+								densityData[f][1] = density;
+								densityData[f][2] = density;
+								
+								original = TubeDetector.drawTubes(original, img, original.getHeight() / 4);
+								original = TubeDetector.drawTubes(original, img, original.getHeight() / 2);
+								combo = TubeDetector.drawTubes(original, img, (original.getHeight() / 4) * 3);
 							}
-							
-							//get data for middle row
-							scanHeight *= 2;
-							double[] vals2 = new double[img.getWidth()];
-							for (int i = 0; i < vals2.length; i++) {
-								vals2[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
-							}
-							
-							//get data for bottom row
-							scanHeight *= 1.5;
-							double[] vals3 = new double[img.getWidth()];
-							for (int i = 0; i < vals2.length; i++) {
-								vals3[i] += GenUtils.average(Grapher.getAngledPixels(img, i, scanHeight, SCAN_SIZE, 90));
-							}
-							
-							//represent data from 0 min to 255 max
-							vals1 = Grapher.contrastVals(vals1);
-							vals2 = Grapher.contrastVals(vals2);
-							vals3 = Grapher.contrastVals(vals3);
-							
-							//smoothing
-							for (int i = 0; i < 15; i++) {
-								vals1 = Grapher.avgVals(vals1);
-								vals2 = Grapher.avgVals(vals2);
-								vals3 = Grapher.avgVals(vals3);
-							}
-							
-							//create graph of middle row
-							BufferedImage graph = Grapher.drawGraph(vals2);
-							
-							//original image on top and graph on bottom
-							BufferedImage combo = new BufferedImage(img.getWidth(), img.getHeight() + 256, BufferedImage.TYPE_INT_RGB);
-							Graphics2D g2d = combo.createGraphics();
-							g2d.drawImage(img, 0, 0, null);
-							g2d.drawImage(graph, 0, img.getHeight(), null);
-							
-							//create horizontal lines
-							g2d.setColor(Color.GREEN);
-							g2d.fillRect(0, (img.getHeight() / 4) - 1, img.getWidth(), 3);
-							g2d.fillRect(0, (img.getHeight() / 2) - 1, img.getWidth(), 3);
-							g2d.fillRect(0, ((img.getHeight() / 4) * 3) - 1, img.getWidth(), 3);
-							
-							//minimum sized peak to accept as valid
-							final int MIN_PEAK = 3;
-							
-							//draw lines
-							combo = Grapher.drawPeaks(vals1, MIN_PEAK, combo, img.getHeight() / 4, false);
-							combo = Grapher.drawPeaks(vals2, MIN_PEAK, combo, img.getHeight() / 2, true);
-							combo = Grapher.drawPeaks(vals3, MIN_PEAK, combo, (img.getHeight() / 4) * 3, false);
-							
-							//get the number of peaks per row
-							double density1 = GenUtils.roundThousandths(Grapher.numPeaks(vals1, MIN_PEAK) / actualSize);
-							double density2 = GenUtils.roundThousandths(Grapher.numPeaks(vals2, MIN_PEAK) / actualSize);
-							double density3 = GenUtils.roundThousandths(Grapher.numPeaks(vals3, MIN_PEAK) / actualSize);
-							
-							//save data
-							densityData[f][0] = density1;
-							densityData[f][1] = density2;
-							densityData[f][2] = density3;
 							
 							//save drawn image if requested
 							String fileName = files[f].getName();

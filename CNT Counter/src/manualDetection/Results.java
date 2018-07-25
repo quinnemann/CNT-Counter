@@ -34,6 +34,11 @@ public class Results {
 	private File file = null;
 	
 	 public Results(String[] args){
+		 	//split data up by each image
+			String files[] = args[2].split("\\?");
+			String tubesByFile[] = args[0].split(";");
+			String distancesByFile[] = args[1].split(";");
+			
 		  JFrame frame = new JFrame();
 		  
 		  //create save button
@@ -42,7 +47,7 @@ public class Results {
 				@Override
 				public void actionPerformed(ActionEvent event) {
 					//create file chooser
-					JFileChooser fc = new JFileChooser();
+					JFileChooser fc = new JFileChooser(files[0]);
 					fc.setDialogTitle("Select Save File");
 					fc.setPreferredSize(new Dimension((int)(frame.getWidth() * 1.5), frame.getHeight()));
 					FileSelect.setFileChooserFont(fc.getComponents());
@@ -68,11 +73,6 @@ public class Results {
 					}
 					
 					if (pw != null) { //if there is no error
-						//split data up by each image
-						String files[] = args[2].split("\\?");
-						String tubesByFile[] = args[0].split(";");
-						String distancesByFile[] = args[1].split(";");
-						
 						pw.println("Filename,Row,Tubes,Distance,Density");
 						
 						//print out data for each image

@@ -51,14 +51,11 @@ public class Main {
         manButton.setFocusable(false);
         
         frame.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentHidden(ComponentEvent arg0) {}
 
             @Override
-            public void componentHidden(ComponentEvent arg0) {
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent arg0) {
-            }
+            public void componentMoved(ComponentEvent arg0) {}
 
             //change font whenever the window is resized
             @Override
@@ -74,9 +71,7 @@ public class Main {
             }
 
             @Override
-            public void componentShown(ComponentEvent e) {
-
-            }
+            public void componentShown(ComponentEvent e) {}
         });
 
         //add components to window

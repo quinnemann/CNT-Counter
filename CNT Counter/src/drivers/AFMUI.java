@@ -65,12 +65,6 @@ public class AFMUI {
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-      /*  JLabel scaleLabel = new JLabel("Image Scale (nm):");
-        scaleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        JTextField scaleInput = new JTextField("100.0");
-        scaleInput.setHorizontalAlignment(SwingConstants.CENTER);*/
-        
         JButton submit = new JButton("Submit");
         submit.addActionListener(new ActionListener() {
 			@Override
@@ -127,8 +121,6 @@ public class AFMUI {
                 
                 fileButton.setFont(defaultFont);
                 fileLabel.setFont(defaultFont);
-                /*scaleLabel.setFont(defaultFont);
-                scaleInput.setFont(defaultFont);*/
                 submit.setFont(defaultFont);
                 errorLabel.setFont(defaultFont);
                 

@@ -243,12 +243,6 @@ public class ImageUtils {
 		Color sw = new Color(img.getRGB(x-1, y+1));
 		Color w = new Color(img.getRGB(x-1, y));
 		Color nw = new Color(img.getRGB(x-1, y-1));
-		/*Color nnw = new Color(img.getRGB(x-1, y-2));
-		Color nn = new Color(img.getRGB(x, y-2));
-		Color nne = new Color(img.getRGB(x+1, y-2));
-		Color ssw = new Color(img.getRGB(x-1, y+2));
-		Color ss = new Color(img.getRGB(x, y+2));
-		Color sse = new Color(img.getRGB(x+1, y+2));*/
 		
 		pixels.add(n.getRed());
 		pixels.add(ne.getRed());
@@ -258,12 +252,6 @@ public class ImageUtils {
 		pixels.add(sw.getRed());
 		pixels.add(w.getRed());
 		pixels.add(nw.getRed());
-		/*pixels.add(nnw.getRed());
-		pixels.add(nn.getRed());
-		pixels.add(nne.getRed());
-		pixels.add(ssw.getRed());
-		pixels.add(ss.getRed());
-		pixels.add(sse.getRed());*/
 		
 		Collections.sort(pixels);
 		

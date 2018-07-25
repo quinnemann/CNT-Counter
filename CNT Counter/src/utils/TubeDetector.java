@@ -40,10 +40,10 @@ public class TubeDetector {
 		
 		BufferedImage cpy = ImageUtils.deepCopy(original);
 		Graphics2D g2d = cpy.createGraphics();
-		g2d.setColor(new Color(152, 0, 255));
+		g2d.setColor(Color.BLUE);
 		g2d.fillRect(0, drawHeight - 2, width, 5);
 		
-		g2d.setColor(Color.BLUE);
+		g2d.setColor(Color.GREEN);
 		int inTube = 0;
 		for (int j = 1; j < width - 1; j++) {
 			Color current = new Color(img.getRGB(j, drawHeight));
