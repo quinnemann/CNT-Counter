@@ -83,10 +83,15 @@ public class AutoSEM{
 		});
         fileButton.setFocusable(false);
         
-        //create checkbox
+        //create image checkbox
         JCheckBox saveCountImages = new JCheckBox("Save Marked Images");
         saveCountImages.setFocusable(false);
         saveCountImages.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        //create data checkbox
+        JCheckBox fullSEMScan = new JCheckBox("Full SEM Scan");
+        fullSEMScan.setFocusable(false);
+        fullSEMScan.setHorizontalAlignment(SwingConstants.CENTER);
         
         fileLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
@@ -140,7 +145,7 @@ public class AutoSEM{
 								img = ImageUtils.cutBottom(img);
 								
 								//total number of pixels to look at per column
-								final int SCAN_SIZE = 50;
+								final int SCAN_SIZE = 51;
 								
 								//get data for top row
 								int scanHeight = img.getHeight() / 4;
@@ -207,7 +212,48 @@ public class AutoSEM{
 								densityData[f][0] = density1;
 								densityData[f][1] = density2;
 								densityData[f][2] = density3;
+								
+								//option to scan every row of pixels
+								if (fullSEMScan.isSelected()) {
+									//get data
+									double[][] vals = new double[img.getHeight()][img.getWidth()];
+									for (int j = 0; j < vals.length; j++) {
+										for (int i = 0; i < vals[j].length; i++) {
+											vals[j][i] = GenUtils.average(Grapher.getAngledPixels(img, i, j, SCAN_SIZE, 90));
+										}
+										vals[j] = Grapher.contrastVals(vals[j]);
+										
+										for (int i = 0; i < 15; i++) {
+											vals[j] = Grapher.avgVals(vals[j]);
+										}
+									}
+									
+									//write daa
+									String fileName = files[f].getName();
+									fileName = fileName.substring(0, fileName.length() - 4);
+									File folder = new File(saveFile.getParent() + "/counts");
+									if (!folder.exists()) {
+										folder.mkdirs();
+									}
+									PrintWriter pwsem = null;
+									try {
+										pwsem = new PrintWriter(folder.getAbsolutePath() + "/" + fileName + "_data.csv");
+									} catch (FileNotFoundException e) {
+										JOptionPane.showMessageDialog(frame, "ERROR: File is being used by another program!", "Error", JOptionPane.ERROR_MESSAGE);
+									}
+									
+									if (pwsem != null) {
+										pwsem.println("Row,Tube Count,Density");
+										for (int i = 0; i < vals.length; i++) {
+											int numPeaks = Grapher.numPeaks(vals[i], MIN_PEAK);
+											pwsem.println(i + 1 + "," + numPeaks + "," + GenUtils.roundThousandths(numPeaks / actualSize));
+										}
+									}
+									
+									pwsem.close();
+								}
 							} else {
+								//get size
 								double size = AFMUtils.actualSize(img);
 								
 								img = AFMUtils.crop(img);
@@ -217,12 +263,15 @@ public class AutoSEM{
 								img = AFMUtils.sharpen(img);
 								img = ImageUtils.contrastByRow(img);
 								
+								//read image
 								double density = GenUtils.roundThousandths(TubeDetector.detectTubes(img) / size);
 								
+								//save data
 								densityData[f][0] = density;
 								densityData[f][1] = density;
 								densityData[f][2] = density;
 								
+								//draw image
 								original = TubeDetector.drawTubes(original, img, original.getHeight() / 4);
 								original = TubeDetector.drawTubes(original, img, original.getHeight() / 2);
 								combo = TubeDetector.drawTubes(original, img, (original.getHeight() / 4) * 3);
@@ -281,6 +330,7 @@ public class AutoSEM{
                 fileButton.setFont(defaultFont);
                 fileLabel.setFont(defaultFont);
                 saveCountImages.setFont(defaultFont);
+                fullSEMScan.setFont(defaultFont);
                 submit.setFont(defaultFont);
                 errorLabel.setFont(defaultFont);
                 
@@ -298,7 +348,7 @@ public class AutoSEM{
         frame.getContentPane().add(fileButton);
         frame.getContentPane().add(fileLabel);
         frame.getContentPane().add(saveCountImages);
-        frame.getContentPane().add(new JLabel());
+        frame.getContentPane().add(fullSEMScan);
         frame.getContentPane().add(submit);
         frame.getContentPane().add(errorLabel);
 
