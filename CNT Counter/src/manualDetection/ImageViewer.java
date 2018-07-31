@@ -81,7 +81,7 @@ public class ImageViewer {
 		
 		//scale image to 3/4 screen height
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		scale = (screenSize.getHeight() / img.getHeight()) * .75;
+		scale = (screenSize.getHeight() / img.getHeight()) * .8;
 		img = ImageUtils.toBufferedImage(img.getScaledInstance((int)(scale * img.getWidth()), (int)(scale * img.getHeight()),
 				BufferedImage.SCALE_SMOOTH));
 		

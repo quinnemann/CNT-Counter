@@ -38,7 +38,7 @@ import utils.Grapher;
 import utils.ImageUtils;
 import utils.TubeDetector;
 
-public class AutoSEM{
+public class Auto{
 	
 	private File[] files = null;
 	private File saveFile = null;
@@ -46,7 +46,7 @@ public class AutoSEM{
 	private static Font defaultFont = new Font("Arial", Font.PLAIN, 0);
 	private JLabel errorLabel = new JLabel("");
 
-    public AutoSEM(){
+    public Auto(){
     	JFrame frame = new JFrame();
     	
     	//create file select button
@@ -252,7 +252,7 @@ public class AutoSEM{
 									
 									pwsem.close();
 								}
-							} else {
+							} else {//for AFM images
 								//get size
 								double size = AFMUtils.actualSize(img);
 								
@@ -376,7 +376,7 @@ public class AutoSEM{
     	
     	SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	new AutoSEM();
+            	new Auto();
             }
         });
     }

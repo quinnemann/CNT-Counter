@@ -32,7 +32,7 @@ public class Main {
 				frame.setVisible(false);
 				frame.dispose();
 				
-				AutoSEM.main(new String[0]);
+				Auto.main(new String[0]);
 			}
 		});
         autoButton.setFocusable(false);
