@@ -205,7 +205,6 @@ public class ImageUtils {
 	}
 	
 	//more advanced noise reduction algorithm
-	//TODO: revert stronger filter changes
 	public static BufferedImage medianFilter(BufferedImage img) {
 		BufferedImage cpy = deepCopy(img);
 		
@@ -258,6 +257,7 @@ public class ImageUtils {
 		return (pixels.get(3) + pixels.get(2)) / 2;
 	}
 	
+	//cuts the bottom of an SEM image
 	public static BufferedImage cutBottom(BufferedImage img) {
 		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight() - 64, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = cpy.createGraphics();
@@ -265,6 +265,7 @@ public class ImageUtils {
 		return cpy;
 	}
 	
+	//transforms Image to a BufferedImage
 	public static BufferedImage toBufferedImage(Image img){
 	    if (img instanceof BufferedImage)
 	    {
@@ -281,21 +282,6 @@ public class ImageUtils {
 
 	    // Return the buffered image
 	    return bimage;
-	}
-	
-	public static BufferedImage gaussianBlur(BufferedImage img) {
-		Kernel kernel = new Kernel(9, 9, new float[] {
-				0f, 0.000001f, 0.000014f, 0.000055f, 0.000088f, 0.000055f, 0.000014f, 0.000001f, 0f, 
-				0.000001f, 0.000036f, 0.000362f, 0.001445f, 0.002289f, 0.001445f, 0.000362f, 0.000036f, 0.000001f,
-				0.000014f, 0.000362f, 0.003672f, 0.014648f, 0.023205f, 0.014648f, 0.003672f, 0.000362f, 0.000014f,
-				0.000055f, 0.001445f, 0.014648f, 0.058434f, 0.092566f, 0.058434f, 0.014648f, 0.001445f, 0.000055f,
-				0.000088f, 0.002289f, 0.023205f, 0.092566f, 0.146634f, 0.092566f, 0.023205f, 0.002289f, 0.000088f,
-				0.000055f, 0.001445f, 0.014648f, 0.058434f, 0.092566f, 0.058434f, 0.014648f, 0.001445f, 0.000055f,
-				0.000014f, 0.000362f, 0.003672f, 0.014648f, 0.023205f, 0.014648f, 0.003672f, 0.000362f, 0.000014f,
-				0.000001f, 0.000036f, 0.000362f, 0.001445f, 0.002289f, 0.001445f, 0.000362f, 0.000036f, 0.000001f,
-				0f, 0.000001f, 0.000014f, 0.000055f, 0.000088f, 0.000055f, 0.000014f, 0.000001f, 0f});
-		    BufferedImageOp op = new ConvolveOp(kernel);
-		    return op.filter(img, null);
 	}
 	
 	//3x3 sobel filter

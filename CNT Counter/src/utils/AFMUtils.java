@@ -9,6 +9,7 @@ import java.awt.image.Kernel;
 
 public class AFMUtils {
 	
+	//returns a black and white copy of an image
 	public static BufferedImage blackAndWhite(BufferedImage img) {
 		BufferedImage cpy = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		Graphics2D g2d = cpy.createGraphics();
@@ -16,6 +17,7 @@ public class AFMUtils {
 		return cpy;
 	}
 	
+	//gets the actual size of a 100nm AFM image
 	public static double actualSize(BufferedImage img) {
 		//height of the image scale
 		int scaleHeight = img.getHeight() - 38;
@@ -37,28 +39,12 @@ public class AFMUtils {
 		return 521.0 / count * (100.0 / 1000);
 	}
 	
+	//crops an AFM image
 	public static BufferedImage crop(BufferedImage img) {
 		return img.getSubimage(12, 8, 521, 521);
 	}
 	
-	public static BufferedImage threshold(BufferedImage img) {
-		BufferedImage cpy = ImageUtils.deepCopy(img);
-		
-		Color c = null;
-		for (int i = 0; i < cpy.getWidth(); i++) {
-			for (int j = 0; j < cpy.getWidth(); j++) {
-				c = new Color(img.getRGB(i, j));
-				if (c.getRed() < 100) {
-					cpy.setRGB(i, j, Color.BLACK.getRGB());
-				} else {
-					cpy.setRGB(i, j, Color.white.getRGB());
-				}
-			}
-		}
-		
-		return cpy;
-	}
-	
+	//increases contrast in an AFM image
 	public static BufferedImage contrast(BufferedImage img) {
 		BufferedImage cpy = ImageUtils.deepCopy(img);
 		
@@ -87,6 +73,7 @@ public class AFMUtils {
 		return cpy;
 	}
 	
+	//sharpens an image
 	public static BufferedImage sharpen(BufferedImage img) {
 		Kernel kernel = new Kernel(3, 3, new float[] { -1, -1, -1, -1, 9, -1, -1,
 		        -1, -1 });

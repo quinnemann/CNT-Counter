@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import utils.ImageUtils;
 
+//This structure contains a stack of images used for the undo feature
 public class ImageStack {
 	
 	ArrayList<BufferedImage> list;

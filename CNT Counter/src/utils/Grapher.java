@@ -9,29 +9,13 @@ import dataStructures.Extremum;
 
 public class Grapher {
 	
-	public static double[] getGraph(BufferedImage img, int row, int size) {
-		double[] pixels = new double[img.getWidth()];
-		for (int i = 0; i < img.getWidth(); i++) {
-			pixels[i] = 0;
-		}
-		
-		int j = row - size / 2;
-		for (int count = 0; count < size; count++) {
-			for (int i = 0; i < img.getWidth(); i++) {
-				Color c = new Color(img.getRGB(i, j));
-				pixels[i] += (double)c.getRed() / size;
-			}
-			j++;
-		}
-		
-		return pixels;
-	}
-	
+	//gets the value of a pixel at coordinates (x, y)
 	public static int getPixel(BufferedImage img, int x, int y) {
 		Color c = new Color(img.getRGB(x, y));
 		return c.getRed();
 	}
 	
+	//contrasts data to be from 0 to 255
 	public static double[] contrastVals(double[] vals) {
 		double min = GenUtils.min(vals);
 		double max = GenUtils.max(vals);
@@ -44,34 +28,7 @@ public class Grapher {
 		return vals;
 	}
 	
-	public static double[][] contrastVals(double[][] vals) {	
-		double min = GenUtils.min(vals[0]);
-		for (int i = 0; i < vals.length; i++) {
-			if (GenUtils.min(vals[i]) < min) {
-				min = GenUtils.min(vals[i]);
-			}
-		}
-		System.out.println("Min: " + min);
-		
-		double max = GenUtils.max(vals[0]);
-		for (int i = 0; i < vals.length; i++) {
-			if (GenUtils.min(vals[i]) > max) {
-				max = GenUtils.min(vals[i]);
-			}
-		}
-		System.out.println("Max: " + max);
-		
-		double mult = 255.0 / (max - min);
-		
-		for (int i = 0; i < vals.length; i++) {
-			for (int j = 0; j < vals[i].length; j++) {
-				vals[i][j] = (vals[i][j] - min) * mult;
-			}
-		}
-		
-		return vals;
-	}
-	
+	//returns an image representation of values
 	public static BufferedImage drawGraph(double[] vals) {
 		BufferedImage graph = new BufferedImage(vals.length, 256, BufferedImage.TYPE_INT_RGB);
 		
@@ -88,6 +45,7 @@ public class Grapher {
 		return graph;
 	}
 	
+	//gets a line of pixels at a specific angle
 	public static ArrayList<Integer> getAngledPixels(BufferedImage img, int x, int y, int size, double angle) {
 		ArrayList<Integer> vals = new ArrayList<Integer>();
 		angle = GenUtils.degreeToRadian(angle);
@@ -107,6 +65,7 @@ public class Grapher {
 		return vals;
 	}
 	
+	//finds the angle where there is most likely to be a line (DOES NOT WORK)
 	public static double maxAngle(BufferedImage img, int x, int y, int size, double minAngle, double maxAngle, double iteration) {
 		double max = minAngle;
 		for (double i = minAngle + iteration; i <= maxAngle; i += iteration) {
@@ -120,6 +79,7 @@ public class Grapher {
 		return max;
 	}
 	
+	//finds the number of peaks in a set of values, ignoring all peaks smaller than diff
 	public static int numPeaks(double[] vals, int diff) {
 		int count = 0;
 		
@@ -160,6 +120,7 @@ public class Grapher {
 		return count;
 	}
 
+	//draws the peaks on an image
 	public static BufferedImage drawPeaks(double[] vals, int diff, BufferedImage img, int height, boolean isGraphHeight) {
 		BufferedImage combo = ImageUtils.deepCopy(img);
 		Graphics2D g2d = combo.createGraphics();
@@ -205,6 +166,7 @@ public class Grapher {
 		return combo;
 	}
 	
+	//averages values to smooth noise
 	public static double[] avgVals(double[] vals) {
 		double[] avg = new double[vals.length];
 		

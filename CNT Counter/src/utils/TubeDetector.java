@@ -8,6 +8,7 @@ import java.util.Collections;
 
 public class TubeDetector {
 	
+	//finds number of tubes in an AFM image
 	public static int detectTubes(BufferedImage img) {
 		int width = img.getWidth();
 		int height = img.getHeight();
@@ -35,6 +36,7 @@ public class TubeDetector {
 		return tubesPerRow.get((int) (tubesPerRow.size() * .5));
 	}
 	
+	//draws tubes on an AFM image
 	public static BufferedImage drawTubes(BufferedImage original, BufferedImage img, int drawHeight) {
 		int width = img.getWidth();
 		

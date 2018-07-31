@@ -1,5 +1,6 @@
 package dataStructures;
 
+//This structure represents either a minimum or maximum point
 public class Extremum {
 	private double val;
 	private boolean isMax;
